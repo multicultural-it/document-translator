@@ -1,0 +1,11 @@
+documents/input/*
+documents/output/*
+documents/temporary/*
+translations/completed/*
+translations/ongoing/*
+
+!documents/input/.gitkeep
+!documents/output/.gitkeep
+!documents/temporary/.gitkeep
+!translations/completed/.gitkeep
+!translations/ongoing/.gitkeep
