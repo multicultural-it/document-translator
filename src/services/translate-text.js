@@ -5,6 +5,7 @@ const RETRY_LIMIT = 3;
 
 const USER_PROMPT_TEMPLATE = `Ensure an accurate and culturally appropriate translation for {targetLanguage} speakers. The translation should be solely of the Current Node, while considering adjacent text nodes (Previous Node and Next Node) for context to ensure accuracy and appropriateness in the translation. Adjacent text nodes should not be translated; they are only to be used as context to aid in translating the Current Node accurately and culturally appropriately. The examples provided are from English to Spanish simply to illustrate the expected format; translations can be requested into different target languages as well. Retain an engaging tone.
 Example:
+
 In:
 Current Node: They set up camp near the bank.
 Previous Node: The adventurers were on a river expedition.
