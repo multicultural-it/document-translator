@@ -3,188 +3,96 @@ import JSZip from "jszip";
 import xml2js from "xml2js";
 import { translateText } from "./translate-text.js";
 
-// 1. Extracción de funciones:
-function findTextNodes(node) {
-  const textNodes = [];
-
-  function traverse(currentNode) {
-    if (typeof currentNode !== "object" || !currentNode) return;
-
-    if (currentNode["w:t"]) {
-      textNodes.push(currentNode);
-      return;
-    }
-
-    Object.values(currentNode).forEach(child => {
-      if (Array.isArray(child)) {
-        child.forEach(grandChild => traverse(grandChild));
-      } else {
-        traverse(child);
-      }
-    });
-  }
-
-  traverse(node);
-  return textNodes;
+// Utilidades de Nodo
+function getChunkFromNode(node) {
+  return node?._ || "";
 }
 
-// 2. Simplificación de `translateNode`:
+function findTextNodes(node) {
+  function traverse(currentNode) {
+    if (!currentNode || typeof currentNode !== "object") return [];
+    if (currentNode["w:t"]) return [currentNode];
+    return Object.values(currentNode).flatMap(child => traverse(child));
+  }
+  return traverse(node);
+}
+
+// Utilidades de Traducción
 async function translateTextNode(node, index, allTextNodes) {
-  let leftChunk = "",
-    rightChunk = "";
+  const currentChunk = getChunkFromNode(node);
+  const leftChunk = getChunkFromNode(allTextNodes[index - 1]);
+  const rightChunk = getChunkFromNode(allTextNodes[index + 1]);
 
-  if (
-    index > 0 &&
-    allTextNodes[index - 1]["w:t"] &&
-    allTextNodes[index - 1]["w:t"][0]
-  ) {
-    leftChunk = allTextNodes[index - 1]["w:t"][0]._ || "";
-  }
+  if (!currentChunk) return { ...node };
 
-  if (
-    index < allTextNodes.length - 1 &&
-    allTextNodes[index + 1]["w:t"] &&
-    allTextNodes[index + 1]["w:t"][0]
-  ) {
-    rightChunk = allTextNodes[index + 1]["w:t"][0]._ || "";
-  }
+  const translatedChunk = await translateText({
+    chunk: currentChunk,
+    leftChunk,
+    rightChunk,
+    targetLanguage: "Spanish",
+  });
 
-  if (node._ && node._.length > 0) {
-    node._ = await translateText({
-      chunk: node._,
-      leftChunk,
-      rightChunk,
-      targetLanguage: "Spanish",
-    });
-  } else {
-    console.log(
-      "Chunk is empty. Skipping translation and using original text."
-    );
-  }
+  return { ...node, _: translatedChunk };
 }
 
 async function translateAllTextNodes(nodes) {
-  for (let i = 0; i < nodes.length; i++) {
-    await translateTextNode(nodes[i]["w:t"][0], i, nodes);
-  }
+  return Promise.all(
+    nodes.map((node, index) => translateTextNode(node["w:t"][0], index, nodes))
+  );
 }
 
-// 3. Claridad en la función principal:
-async function translateDocx(inputPath, outputPath) {
-  const docxContent = fs.readFileSync(inputPath);
-  const zip = new JSZip();
-  await zip.loadAsync(docxContent);
+function replaceOriginalTextNodesWithTranslated(
+  originalNodes,
+  translatedNodes
+) {
+  originalNodes.forEach((originalNode, index) => {
+    originalNode["w:t"][0] = translatedNodes[index];
+  });
+}
 
-  const documentXml = await zip.file("word/document.xml").async("string");
-  const parser = new xml2js.Parser();
-  const documentObj = await parser.parseStringPromise(documentXml);
+// Utilidades DOCX
+async function getDocxContent(inputPath) {
+  const content = fs.readFileSync(inputPath);
+  const zip = new JSZip();
+  await zip.loadAsync(content);
+  return zip;
+}
+
+async function getDocumentObjectFromDocxContent(zipContent) {
+  const documentXml = await zipContent
+    .file("word/document.xml")
+    .async("string");
+  return new xml2js.Parser().parseStringPromise(documentXml);
+}
+
+async function buildTranslatedDocxContent(documentObj, zipContent) {
+  const translatedDocumentXml = new xml2js.Builder().buildObject(documentObj);
+  return zipContent
+    .file("word/document.xml", translatedDocumentXml)
+    .generateAsync({ type: "nodebuffer" });
+}
+
+function saveTranslatedDocxContent(outputPath, translatedDocxContent) {
+  fs.writeFileSync(outputPath, translatedDocxContent);
+}
+
+// Función Principal
+async function translateDocx(inputPath, outputPath) {
+  const docxContent = await getDocxContent(inputPath);
+  const documentObj = await getDocumentObjectFromDocxContent(docxContent);
 
   const textNodes = findTextNodes(documentObj["w:document"]["w:body"][0]);
-  await translateAllTextNodes(textNodes);
+  const translatedNodes = await translateAllTextNodes(textNodes);
+  replaceOriginalTextNodesWithTranslated(textNodes, translatedNodes);
 
-  const builder = new xml2js.Builder();
-  const translatedDocumentXml = builder.buildObject(documentObj);
-  zip.file("word/document.xml", translatedDocumentXml);
-  const translatedDocxContent = await zip.generateAsync({ type: "nodebuffer" });
-  fs.writeFileSync(outputPath, translatedDocxContent);
+  const translatedDocxContent = await buildTranslatedDocxContent(
+    documentObj,
+    docxContent
+  );
+
+  saveTranslatedDocxContent(outputPath, translatedDocxContent);
 
   console.log(`Traducción completada.`);
 }
 
 export { translateDocx };
-
-// async function translateDocx(inputPath, outputPath) {
-//   const docxContent = fs.readFileSync(inputPath);
-//   const zip = new JSZip();
-//   await zip.loadAsync(docxContent);
-
-//   const documentXml = await zip.file("word/document.xml").async("string");
-//   const parser = new xml2js.Parser();
-//   const documentObj = await parser.parseStringPromise(documentXml);
-
-//   function findTextNodes(node) {
-//     const textNodes = [];
-
-//     function traverse(currentNode) {
-//       if (typeof currentNode !== "object" || !currentNode) return;
-
-//       if (currentNode["w:t"]) {
-//         textNodes.push(currentNode);
-//         return;
-//       }
-
-//       Object.values(currentNode).forEach(child => {
-//         if (Array.isArray(child)) {
-//           child.forEach(grandChild => traverse(grandChild));
-//         } else {
-//           traverse(child);
-//         }
-//       });
-//     }
-
-//     traverse(node);
-//     return textNodes;
-//   }
-
-//   const textNodes = findTextNodes(documentObj["w:document"]["w:body"][0]);
-
-//   async function translateNode(node) {
-//     if (!node) return;
-
-//     const textNodes = findTextNodes(node);
-
-//     for (let i = 0; i < textNodes.length; i++) {
-//       const currentNode = textNodes[i];
-//       let leftChunk = "",
-//         rightChunk = "";
-
-//       if (i > 0 && textNodes[i - 1]["w:t"] && textNodes[i - 1]["w:t"][0]) {
-//         leftChunk = textNodes[i - 1]["w:t"][0]._ || "";
-//       }
-
-//       if (
-//         i < textNodes.length - 1 &&
-//         textNodes[i + 1]["w:t"] &&
-//         textNodes[i + 1]["w:t"][0]
-//       ) {
-//         rightChunk = textNodes[i + 1]["w:t"][0]._ || "";
-//       }
-
-//       // Verificando existencia y tipo antes de intentar asignación
-//       if (currentNode["w:t"] && Array.isArray(currentNode["w:t"])) {
-//         for (const textNode of currentNode["w:t"]) {
-//           console.log("i:", i);
-//           console.log("CURRENT:", textNode._);
-//           console.log("<< leftChunk:", leftChunk);
-//           console.log(">> rightChunk:", rightChunk);
-
-//           if (textNode && typeof textNode === "object" && textNode._) {
-//             if (textNode._.length > 0) {
-//               textNode._ = await translateText({
-//                 chunk: textNode._,
-//                 leftChunk,
-//                 rightChunk,
-//                 targetLanguage: "Spanish",
-//               });
-//             } else {
-//               console.log(
-//                 "Chunk is empty. Skipping translation and using original text."
-//               );
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-
-//   await translateNode(documentObj["w:document"]["w:body"][0]);
-
-//   const builder = new xml2js.Builder();
-//   const translatedDocumentXml = builder.buildObject(documentObj);
-//   zip.file("word/document.xml", translatedDocumentXml);
-//   const translatedDocxContent = await zip.generateAsync({ type: "nodebuffer" });
-//   fs.writeFileSync(outputPath, translatedDocxContent);
-//   console.log(`Traducción completada.`);
-// }
-
-// export { translateDocx };
