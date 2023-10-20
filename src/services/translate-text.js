@@ -1,18 +1,9 @@
-import {
-  cleanText,
-  hasTranslationErrors,
-  shouldRetry,
-} from "../utils/utils.js";
+import { cleanText, hasTranslationErrors } from "../utils/utils.js";
 import GptService from "./gpt-service.js";
 
-const retryLimit = 3;
-let translationCallCount = 0;
-const currentLanguage = process.argv[2] || "Spanish";
+const RETRY_LIMIT = 3;
 
-// Out: <!" Establecieron el campamento cerca de la orilla. "!>
-// Out: <!" لقد أقاموا المخيم بالقرب من الضفة. "!>
-
-const userPromptTemplate = `Ensure an accurate and culturally appropriate translation for ${currentLanguage} speakers. The translation should be solely of the Current Node, while considering adjacent text nodes (Previous Node and Next Node) for context to ensure accuracy and appropriateness in the translation. Adjacent text nodes should not be translated; they are only to be used as context to aid in translating the Current Node accurately and culturally appropriately. The examples provided are from English to Spanish simply to illustrate the expected format; translations can be requested into different target languages as well. Retain an engaging tone.
+const USER_PROMPT_TEMPLATE = `Ensure an accurate and culturally appropriate translation for {targetLanguage} speakers. The translation should be solely of the Current Node, while considering adjacent text nodes (Previous Node and Next Node) for context to ensure accuracy and appropriateness in the translation. Adjacent text nodes should not be translated; they are only to be used as context to aid in translating the Current Node accurately and culturally appropriately. The examples provided are from English to Spanish simply to illustrate the expected format; translations can be requested into different target languages as well. Retain an engaging tone.
 Example:
 In:
 Current Node: They set up camp near the bank.
@@ -26,33 +17,33 @@ Previous Node: {previousNode}.
 Next Node: {nextNode}.
 Out: <!"`;
 
-const systemPrompt = `You're a skilled ${currentLanguage} translator. Your task is to translate solely the Current Node into accurate and culturally appropriate ${currentLanguage}, considering adjacent text nodes (Previous Node and Next Node) for context to ensure the accuracy and appropriateness of your translation. Do not translate the adjacent text nodes; they should only be used as context to assist in translating the Current Node. The examples provided earlier illustrate translations from English to Spanish only to demonstrate the expected format, but be prepared to translate into various target languages as needed. Ensure your translation and format are clean and engaging.`;
+const SYSTEM_PROMPT = `You're a skilled {targetLanguage} translator. Your task is to translate solely the Current Node into accurate and culturally appropriate {targetLanguage}, considering adjacent text nodes (Previous Node and Next Node) for context to ensure the accuracy and appropriateness of your translation. Do not translate the adjacent text nodes; they should only be used as context to assist in translating the Current Node. The examples provided earlier illustrate translations from English to Spanish only to demonstrate the expected format, but be prepared to translate into various target languages as needed. Ensure your translation and format are clean and engaging.`;
 
-function generateUserPrompt(chunk, leftChunk, rightChunk) {
-  return userPromptTemplate
-    .replace("{currentNode}", chunk)
-    .replace("{previousNode}", leftChunk || "N/A")
-    .replace("{nextNode}", rightChunk || "N/A");
+function generateUserPrompt({ chunk, leftChunk, rightChunk, targetLanguage }) {
+  return USER_PROMPT_TEMPLATE.replace("{currentNode}", chunk)
+    .replace("{previousNode}", leftChunk)
+    .replace("{nextNode}", rightChunk)
+    .replace("{targetLanguage}", targetLanguage);
 }
 
-async function translateChunk(chunk, leftChunk, rightChunk) {
-  const userPrompt = generateUserPrompt(chunk, leftChunk, rightChunk);
-  return await handleRetries(userPrompt, chunk);
+function generateSystemPrompt({ targetLanguage }) {
+  return SYSTEM_PROMPT.replace("{targetLanguage}", targetLanguage);
 }
 
-async function handleRetries(userPrompt, chunk) {
-  console.log("Intento de traduccion: ", translationCallCount);
-
-  for (let retryCount = 0; retryCount < retryLimit; retryCount++) {
+async function handleRetries({ userPrompt, systemPrompt, chunk }) {
+  for (let retryCount = 0; retryCount < RETRY_LIMIT; retryCount++) {
     try {
-      let translatedChunk = await getApiResponse(userPrompt);
-      translatedChunk = cleanText(translatedChunk);
+      const gptService = new GptService(process.env.OPENAI_API_KEY);
 
+      const dirtyTranslatedChunk = await gptService.getApiResponse([
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ]);
+
+      const translatedChunk = cleanText(dirtyTranslatedChunk);
       console.log("TRADUCCION: ", translatedChunk);
-      if (
-        !hasTranslationErrors(translatedChunk) ||
-        !shouldRetry(translatedChunk, retryCount, retryLimit)
-      ) {
+
+      if (!hasTranslationErrors(translatedChunk)) {
         return translatedChunk || chunk;
       }
     } catch (error) {
@@ -62,17 +53,20 @@ async function handleRetries(userPrompt, chunk) {
   return chunk;
 }
 
-async function getApiResponse(userPrompt) {
-  const gptService = new GptService(process.env.OPENAI_API_KEY);
-  return await gptService.getApiResponse([
-    { role: "system", content: systemPrompt },
-    { role: "user", content: userPrompt },
-  ]);
-}
+async function translateText({ chunk, leftChunk, rightChunk, targetLanguage }) {
+  const userPrompt = generateUserPrompt({
+    chunk,
+    leftChunk,
+    rightChunk,
+    targetLanguage,
+  });
 
-async function translateText({ chunk, leftChunk, rightChunk }) {
-  translationCallCount += 1;
-  const translatedChunk = await translateChunk(chunk, leftChunk, rightChunk);
+  const systemPrompt = generateSystemPrompt({ targetLanguage });
+  const translatedChunk = await handleRetries({
+    userPrompt,
+    systemPrompt,
+    chunk,
+  });
   return translatedChunk.replace(/"/g, "");
 }
 

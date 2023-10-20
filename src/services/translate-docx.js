@@ -74,6 +74,7 @@ async function translateDocx(inputPath, outputPath) {
                 chunk: textNode._,
                 leftChunk,
                 rightChunk,
+                targetLanguage: "Spanish",
               });
             } else {
               console.log(
