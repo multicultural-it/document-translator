@@ -20,8 +20,6 @@ async function getDocumentObjectFromDocxContent(zipContent) {
 
 async function buildTranslatedDocxContent(documentObj, zipContent) {
   console.log("CREANDO ARCHIVO: ");
-  console.log("documentObj", documentObj);
-
   const translatedDocumentXml = new xml2js.Builder().buildObject(documentObj);
   return zipContent
     .file("word/document.xml", translatedDocumentXml)
@@ -125,8 +123,32 @@ function replaceOriginalParagraphsNodesWithTranslated({
         }
 
         if (translatedNode) {
-          originalNode["w:t"][0] = translatedNode;
-          // originalNode["w:t"][0] = translatedNode.translation;
+          const clonedNode = JSON.parse(JSON.stringify(originalNode["w:t"][0]));
+
+          clonedNode._ = translatedNode.translation;
+
+          console.log(
+            "originalNode wt 0: ",
+            JSON.stringify(originalNode["w:t"][0], null, 2)
+          );
+
+          console.log("clonedNode: ", JSON.stringify(clonedNode, null, 2));
+
+          console.log(
+            "type of originalNode['w:t'][0]: ",
+            typeof originalNode["w:t"][0]
+          );
+          console.log("type of clonedNode: ", typeof clonedNode);
+
+          if (clonedNode && clonedNode._) {
+            originalNode["w:t"][0] = clonedNode;
+          } else {
+            console.log("clonedNode no tiene texto o es nulo");
+          }
+
+          // originalNode["w:t"][0] = JSON.parse(
+          //   JSON.stringify(originalNode["w:t"][0])
+          // );
         }
       });
     }
