@@ -19,6 +19,9 @@ async function getDocumentObjectFromDocxContent(zipContent) {
 }
 
 async function buildTranslatedDocxContent(documentObj, zipContent) {
+  console.log("CREANDO ARCHIVO: ");
+  console.log("documentObj", documentObj);
+
   const translatedDocumentXml = new xml2js.Builder().buildObject(documentObj);
   return zipContent
     .file("word/document.xml", translatedDocumentXml)
