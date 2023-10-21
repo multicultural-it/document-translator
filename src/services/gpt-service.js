@@ -35,7 +35,7 @@ export default class GptService {
 
     const data = await response.json();
 
-    console.log("data", data);
+    // console.log("data", data);
 
     if (data.choices && data.choices.length > 0) {
       return data.choices[0].message.content;
