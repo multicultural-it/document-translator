@@ -125,7 +125,8 @@ function replaceOriginalParagraphsNodesWithTranslated({
         }
 
         if (translatedNode) {
-          originalNode["w:t"][0] = translatedNode.translation;
+          originalNode["w:t"][0] = translatedNode;
+          // originalNode["w:t"][0] = translatedNode.translation;
         }
       });
     }
