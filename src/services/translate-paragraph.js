@@ -64,6 +64,23 @@ function generateSystemPrompt() {
   return SYSTEM_PROMPT;
 }
 
+// async function translateParagraph({ paragraph, targetLanguage }) {
+//   const userPrompt = generateUserPrompt({
+//     paragraph,
+//     targetLanguage,
+//   });
+
+//   const systemPrompt = generateSystemPrompt({ paragraph });
+
+//   const result = await handleRetries({
+//     userPrompt,
+//     systemPrompt,
+//     paragraph,
+//   });
+
+//   return JSON.parse(result);
+// }
+
 async function translateParagraph({ paragraph, targetLanguage }) {
   const userPrompt = generateUserPrompt({
     paragraph,
@@ -72,18 +89,39 @@ async function translateParagraph({ paragraph, targetLanguage }) {
 
   const systemPrompt = generateSystemPrompt({ paragraph });
 
-  const result = await handleRetries({
-    userPrompt,
-    systemPrompt,
-    paragraph,
-  });
+  let result;
+  let parsedResult;
 
-  // console.log("result", result);
+  while (true) {
+    result = await handleRetries({
+      userPrompt,
+      systemPrompt,
+      paragraph, // Lo agregué porque estaba presente en la llamada original a handleRetries
+    });
 
-  return JSON.parse(result);
+    // Intentamos parsear el resultado
+    try {
+      parsedResult = JSON.parse(result);
+      break; // Si el parseo es exitoso, salimos del bucle
+    } catch (jsonError) {
+      console.log("Error al parsear JSON. Reintentando...");
+    }
+
+    // En caso de error de límite de tasa
+    if (result.error && result.error.code === "rate_limit_exceeded") {
+      console.log(
+        "Límite de tasa alcanzado. Esperando 60 segundos antes de reintentar..."
+      );
+      await new Promise(resolve => setTimeout(resolve, 60000));
+    }
+  }
+
+  console.log("result", parsedResult);
+
+  return parsedResult;
 }
 
-async function handleRetries({ userPrompt, systemPrompt, paragraph }) {
+async function handleRetries({ userPrompt, systemPrompt }) {
   for (let retryCount = 0; retryCount < RETRY_LIMIT; retryCount++) {
     try {
       const gptService = new GptService(process.env.OPENAI_API_KEY);
@@ -95,10 +133,71 @@ async function handleRetries({ userPrompt, systemPrompt, paragraph }) {
 
       return translatedParagraph;
     } catch (error) {
-      console.error(error);
+      console.error("HANDLE RETRIES ERROR: ", error);
+      console.log("userPrompt", userPrompt);
+      console.log("systemPrompt", systemPrompt);
+      console.error("FIN HANDLE RETRIES ERROR: ", error);
+      if (retryCount === RETRY_LIMIT - 1) {
+        // Si es el último intento
+        return { error }; // Devuelve el error
+      }
     }
   }
-  return chunk;
 }
 
 export { translateParagraph };
+
+// async function improveParagraph({ paragraph, targetLanguage }) {
+//   const userPrompt = generateUserPrompt({
+//     paragraph,
+//     targetLanguage,
+//   });
+
+//   const systemPrompt = generateSystemPrompt({ targetLanguage });
+
+//   let result;
+
+//   while (true) {
+//     result = await handleRetries({
+//       userPrompt,
+//       systemPrompt,
+//     });
+
+//     if (result.error && result.error.code === "rate_limit_exceeded") {
+//       console.log(
+//         "Límite de tasa alcanzado. Esperando 20 segundos antes de reintentar..."
+//       );
+
+//       await new Promise(resolve => setTimeout(resolve, 20000));
+//     } else {
+//       break;
+//     }
+//   }
+
+//   console.log("result", result);
+
+//   return JSON.parse(result);
+// }
+
+// async function handleRetries({ userPrompt, systemPrompt }) {
+//   for (let retryCount = 0; retryCount < RETRY_LIMIT; retryCount++) {
+//     try {
+//       const gptService = new GptService(process.env.OPENAI_API_KEY);
+
+//       const translatedParagraph = await gptService.getApiResponse([
+//         { role: "system", content: systemPrompt },
+//         { role: "user", content: userPrompt },
+//       ]);
+
+//       return translatedParagraph;
+//     } catch (error) {
+//       console.error("HANDLE RETRIES ERROR: ", error);
+//       console.log("userPrompt", userPrompt);
+//       console.log("systemPrompt", systemPrompt);
+//       console.error("FIN HANDLE RETRIES ERROR: ", error);
+//       if (retryCount === RETRY_LIMIT - 1) {
+//         return { error };
+//       }
+//     }
+//   }
+// }

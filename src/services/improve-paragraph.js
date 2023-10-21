@@ -69,6 +69,38 @@ function generateSystemPrompt({ targetLanguage }) {
   return SYSTEM_PROMPT.replace("{targetLanguage}", targetLanguage);
 }
 
+// async function improveParagraph({ paragraph, targetLanguage }) {
+//   const userPrompt = generateUserPrompt({
+//     paragraph,
+//     targetLanguage,
+//   });
+
+//   const systemPrompt = generateSystemPrompt({ targetLanguage });
+
+//   let result;
+
+//   while (true) {
+//     result = await handleRetries({
+//       userPrompt,
+//       systemPrompt,
+//     });
+
+//     if (result.error && result.error.code === "rate_limit_exceeded") {
+//       console.log(
+//         "Límite de tasa alcanzado. Esperando 20 segundos antes de reintentar..."
+//       );
+
+//       await new Promise(resolve => setTimeout(resolve, 20000));
+//     } else {
+//       break;
+//     }
+//   }
+
+//   console.log("result", result);
+
+//   return JSON.parse(result);
+// }
+
 async function improveParagraph({ paragraph, targetLanguage }) {
   const userPrompt = generateUserPrompt({
     paragraph,
@@ -77,14 +109,35 @@ async function improveParagraph({ paragraph, targetLanguage }) {
 
   const systemPrompt = generateSystemPrompt({ targetLanguage });
 
-  const result = await handleRetries({
-    userPrompt,
-    systemPrompt,
-  });
+  let result;
+  let parsedResult;
 
-  console.log("result", result);
+  while (true) {
+    result = await handleRetries({
+      userPrompt,
+      systemPrompt,
+    });
 
-  return JSON.parse(result);
+    // Intentamos parsear el resultado
+    try {
+      parsedResult = JSON.parse(result);
+      break; // Si el parseo es exitoso, salimos del bucle
+    } catch (jsonError) {
+      console.log("Error al parsear JSON. Reintentando...");
+    }
+
+    // En caso de error de límite de tasa
+    if (result.error && result.error.code === "rate_limit_exceeded") {
+      console.log(
+        "Límite de tasa alcanzado. Esperando 60 segundos antes de reintentar..."
+      );
+      await new Promise(resolve => setTimeout(resolve, 60000));
+    }
+  }
+
+  console.log("result", parsedResult);
+
+  return parsedResult;
 }
 
 async function handleRetries({ userPrompt, systemPrompt }) {
@@ -99,10 +152,52 @@ async function handleRetries({ userPrompt, systemPrompt }) {
 
       return translatedParagraph;
     } catch (error) {
-      console.error(error);
-      return error;
+      console.error("HANDLE RETRIES ERROR: ", error);
+      console.log("userPrompt", userPrompt);
+      console.log("systemPrompt", systemPrompt);
+      console.error("FIN HANDLE RETRIES ERROR: ", error);
+      if (retryCount === RETRY_LIMIT - 1) {
+        // Si es el último intento
+        return { error }; // Devuelve el error
+      }
     }
   }
 }
 
 export { improveParagraph };
+
+// async function handleRetries({ userPrompt, systemPrompt }) {
+//   for (let retryCount = 0; retryCount < RETRY_LIMIT; retryCount++) {
+//     try {
+//       const gptService = new GptService(process.env.OPENAI_API_KEY);
+
+//       const translatedParagraph = await gptService.getApiResponse([
+//         { role: "system", content: systemPrompt },
+//         { role: "user", content: userPrompt },
+//       ]);
+
+//       return translatedParagraph;
+//     } catch (error) {
+//       console.error(error);
+//       return error;
+//     }
+//   }
+// }
+
+// async function improveParagraph({ paragraph, targetLanguage }) {
+//   const userPrompt = generateUserPrompt({
+//     paragraph,
+//     targetLanguage,
+//   });
+
+//   const systemPrompt = generateSystemPrompt({ targetLanguage });
+
+//   const result = await handleRetries({
+//     userPrompt,
+//     systemPrompt,
+//   });
+
+//   console.log("result", result);
+
+//   return JSON.parse(result);
+// }
