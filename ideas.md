@@ -70,31 +70,56 @@ Proponemos dividir la tarea en dos agentes que trabajen en conjunto:
 ]
 ```
 
-#### Agente 2: Constructor de Oraciones
+#### Agente 2: Constructor de Parrafos
 
-**Función:** Recibe la oración original y el array de nodos con sus traducciones, y devuelve la oración traducida con los nodos en el orden correcto.
+**Función:** Recibe el parrafo original y el array de nodos con sus traducciones, y devuelve el parrafo traducido con los nodos en el orden correcto.
 
-**Input:** Oración original y array de nodos con su traducción e índice.
+**Input:** Parrafo original y array de nodos con su traducción e índice.
 
-**Output:** Oración traducida con nodos ordenados basándose en sus índices.
+**Output:** Párrafo traducido con nodos ordenados basándose en sus índices.
+
+**Ejemplo de Input:**
+
+```json
+{
+  "paragraph": "This course can help you better understand LinkedIn Marketing Solutions’ paid products.",
+  "nodes": [
+    {
+      "index": 0,
+      "text": "This course can help you better understand ",
+      "translation": "Este curso puede ayudarlo a comprender mejor"
+    },
+    {
+      "index": 1,
+      "text": "LinkedIn Marketing Solutions",
+      "translation": "LinkedIn Marketing Solutions"
+    },
+    {
+      "index": 2,
+      "text": "’ paid products.",
+      "translation": " los productos pagos."
+    }
+  ]
+}
+```
 
 **Ejemplo de Output:**
 
 ```json
 {
-  "sentence": "Este curso puede ayudarlo a comprender mejor los productos pagos de LinkedIn Marketing Solutions.",
-  "orderedNodes": [
+  "paragraph": "Este curso puede ayudarlo a comprender mejor los productos pagos de LinkedIn Marketing Solutions.",
+  "nodes": [
     {
-      "indice": 1,
-      "correctedTranslation": "Este curso puede ayudarlo a comprender mejor"
+      "index": 1,
+      "translation": "Este curso puede ayudarlo a comprender mejor"
     },
     {
       "indice": 3,
-      "correctedTranslation": "los productos pagos"
+      "translation": "los productos pagos"
     },
     {
       "indice": 2,
-      "correctedTranslation": "de LinkedIn Marketing Solutions."
+      "translation": "de LinkedIn Marketing Solutions."
     }
   ]
 }

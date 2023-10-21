@@ -2,6 +2,7 @@ import fs from "fs";
 import JSZip from "jszip";
 import xml2js from "xml2js";
 import { translateText } from "./translate-text.js";
+import { translateParagraph } from "./translate-paragraph.js";
 
 // Utilidades de Nodo
 function getChunkFromNode(node) {
@@ -15,6 +16,37 @@ function findTextNodes(node) {
     return Object.values(currentNode).flatMap(child => traverse(child));
   }
   return traverse(node);
+}
+
+// function findParagraphNodes(node) {
+//   function traverse(currentNode) {
+//     if (!currentNode || typeof currentNode !== "object") return [];
+//     if (currentNode["w:p"]) return [currentNode];
+//     return Object.values(currentNode).flatMap(child => traverse(child));
+//   }
+//   return traverse(node);
+// }
+
+function findParagraphNodes(node) {
+  const paragraphs = [];
+
+  function traverse(currentNode) {
+    if (!currentNode || typeof currentNode !== "object") return;
+    // if (currentNode["w:p"]) {
+    if (currentNode["w:pPr"]) {
+      paragraphs.push(currentNode);
+      return;
+    }
+    Object.values(currentNode).forEach(child => traverse(child));
+  }
+
+  traverse(node);
+  return paragraphs;
+}
+
+function getTextFromParagraph(paragraphNode) {
+  const textNodes = findTextNodes(paragraphNode);
+  return textNodes.map(node => getChunkFromNode(node["w:t"][0])).join("");
 }
 
 // Utilidades de Traducción
@@ -33,21 +65,6 @@ async function translateTextNode(node, index, allTextNodes) {
   });
 
   return { ...node, _: translatedChunk };
-}
-
-async function translateAllTextNodes(nodes) {
-  return Promise.all(
-    nodes.map((node, index) => translateTextNode(node["w:t"][0], index, nodes))
-  );
-}
-
-function replaceOriginalTextNodesWithTranslated(
-  originalNodes,
-  translatedNodes
-) {
-  originalNodes.forEach((originalNode, index) => {
-    originalNode["w:t"][0] = translatedNodes[index];
-  });
 }
 
 // Utilidades DOCX
@@ -77,22 +94,74 @@ function saveTranslatedDocxContent(outputPath, translatedDocxContent) {
 }
 
 // Función Principal
+// async function translateDocx(inputPath, outputPath) {
+//   const docxContent = await getDocxContent(inputPath);
+//   const documentObj = await getDocumentObjectFromDocxContent(docxContent);
+
+//   const textNodes = findTextNodes(documentObj["w:document"]["w:body"][0]);
+
+//   const translatedNodes = await Promise.all(
+//     nodes.map((node, index) =>
+//       translateTextNode(node["w:t"][0], index, textNodes)
+//     )
+//   );
+
+//   console.log("translatedNodes", translatedNodes);
+
+//   replaceOriginalTextNodesWithTranslated(textNodes, translatedNodes);
+
+//   const translatedDocxContent = await buildTranslatedDocxContent(
+//     documentObj,
+//     docxContent
+//   );
+
+//   saveTranslatedDocxContent(outputPath, translatedDocxContent);
+
+//   console.log(`Traducción completada.`);
+// }
+
 async function translateDocx(inputPath, outputPath) {
   const docxContent = await getDocxContent(inputPath);
   const documentObj = await getDocumentObjectFromDocxContent(docxContent);
 
-  const textNodes = findTextNodes(documentObj["w:document"]["w:body"][0]);
-  const translatedNodes = await translateAllTextNodes(textNodes);
-  replaceOriginalTextNodesWithTranslated(textNodes, translatedNodes);
+  const paragraphs = findParagraphNodes(documentObj["w:document"]["w:body"][0]);
 
-  const translatedDocxContent = await buildTranslatedDocxContent(
-    documentObj,
-    docxContent
+  const jsonParagraphs = paragraphs
+    .map(node => ({
+      paragraph: getTextFromParagraph(node),
+      nodes: findTextNodes(node).map((node, index) => ({
+        index,
+        originalText: node._,
+      })),
+    }))
+    .filter(paragraph => paragraph.paragraph.length > 0);
+
+  const translatedParagraphs = await Promise.all(
+    jsonParagraphs.map(async paragraph => translateParagraph({ paragraph }))
   );
 
-  saveTranslatedDocxContent(outputPath, translatedDocxContent);
+  console.log("translatedParagraphs", translatedParagraphs);
 
-  console.log(`Traducción completada.`);
+  replaceOriginalParagraphsNodesWithTranslated({
+    paragraphs,
+    translatedParagraphs,
+  });
 }
+
+// function replaceOriginalTextNodesWithTranslated(
+//   originalNodes,
+//   translatedNodes
+// ) {
+//   originalNodes.forEach((originalNode, index) => {
+//     originalNode["w:t"][0] = translatedNodes[index];
+//   });
+// }
+
+function replaceOriginalParagraphsNodesWithTranslated({
+  paragraphs,
+  translatedParagraphs,
+}) {}
+
+test().then(() => console.log("done"));
 
 export { translateDocx };
