@@ -69,7 +69,7 @@ function generateSystemPrompt() {
   return SYSTEM_PROMPT;
 }
 
-async function improveParagraph({ paragraph }) {
+async function improveParagraph({ paragraph, targetLanguage }) {
   const userPrompt = generateUserPrompt({
     paragraph,
   });

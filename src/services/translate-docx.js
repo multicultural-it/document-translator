@@ -116,11 +116,30 @@ async function translateDocx(inputPath, outputPath) {
     }))
     .filter(paragraph => paragraph.paragraph.length > 0);
 
-  const translatedParagraphs = await Promise.all(
-    jsonParagraphs.map(async paragraph =>
-      translateParagraph({ paragraph, targetLanguage: "Spanish (Argentina)" })
-    )
-  );
+  // const translatedParagraphs = await Promise.all(
+  //   jsonParagraphs.map(async paragraph =>
+  //     translateParagraph({ paragraph, targetLanguage: "Spanish (Argentina)" })
+  //   )
+  // );
+
+  async function processBlocks(blocks, fn) {
+    let results = [];
+    for (let block of blocks) {
+      let translatedBlock = await Promise.all(
+        block.map(paragraph =>
+          fn({
+            paragraph,
+            targetLanguage: "Spanish (Argentina)",
+          })
+        )
+      );
+      results.push(...translatedBlock);
+    }
+    return results;
+  }
+  const CHUNK_SIZE = 4;
+  const blocks = chunkArray(jsonParagraphs, CHUNK_SIZE);
+  const translatedParagraphs = await processBlocks(blocks, translateParagraph);
 
   const translatedParagraphsWithOriginal = translatedParagraphs.map(
     (translatedParagraph, paragraphIndex) => {
@@ -142,10 +161,15 @@ async function translateDocx(inputPath, outputPath) {
     }
   );
 
-  const improvedParagraphs = await Promise.all(
-    translatedParagraphsWithOriginal.map(async paragraph =>
-      improveParagraph({ paragraph })
-    )
+  // const improvedParagraphs = await Promise.all(
+  //   translatedParagraphsWithOriginal.map(async paragraph =>
+  //     improveParagraph({ paragraph })
+  //   )
+  // );
+
+  const improvedParagraphs = await processBlocks(
+    chunkArray(translatedParagraphsWithOriginal, CHUNK_SIZE),
+    improveParagraph
   );
 
   replaceOriginalParagraphsNodesWithTranslated({
@@ -159,6 +183,14 @@ async function translateDocx(inputPath, outputPath) {
   );
 
   saveTranslatedDocxContent(outputPath, translatedDocxContent);
+}
+
+function chunkArray(myArray, chunk_size) {
+  let results = [];
+  while (myArray.length) {
+    results.push(myArray.splice(0, chunk_size));
+  }
+  return results;
 }
 
 export { translateDocx };
