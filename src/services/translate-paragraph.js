@@ -81,7 +81,6 @@ async function translateParagraph({ paragraph }) {
   console.log("result", result);
 
   return JSON.parse(result);
-  // return result;
 }
 
 async function handleRetries({ userPrompt, systemPrompt, paragraph }) {
