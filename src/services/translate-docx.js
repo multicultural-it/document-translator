@@ -155,6 +155,7 @@ async function translateDocx(inputPath, outputPath) {
           return {
             ...translatedNode,
             original: originalNode.originalText,
+            translation: translatedNode.translation,
           };
         }),
       };
@@ -167,9 +168,19 @@ async function translateDocx(inputPath, outputPath) {
   //   )
   // );
 
+  console.log(
+    "translatedParagraphsWithOriginal",
+    JSON.stringify(translatedParagraphsWithOriginal, null, 2)
+  );
+
   const improvedParagraphs = await processBlocks(
     chunkArray(translatedParagraphsWithOriginal, CHUNK_SIZE),
     improveParagraph
+  );
+
+  console.log(
+    "improvedParagraphs",
+    JSON.stringify(improvedParagraphs, null, 2)
   );
 
   replaceOriginalParagraphsNodesWithTranslated({
@@ -186,9 +197,10 @@ async function translateDocx(inputPath, outputPath) {
 }
 
 function chunkArray(myArray, chunk_size) {
+  const cloneMyArray = [...myArray];
   let results = [];
-  while (myArray.length) {
-    results.push(myArray.splice(0, chunk_size));
+  while (cloneMyArray.length) {
+    results.push(cloneMyArray.splice(0, chunk_size));
   }
   return results;
 }

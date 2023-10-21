@@ -78,7 +78,7 @@ async function translateParagraph({ paragraph, targetLanguage }) {
     paragraph,
   });
 
-  console.log("result", result);
+  // console.log("result", result);
 
   return JSON.parse(result);
 }
