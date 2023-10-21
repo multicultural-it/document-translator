@@ -117,25 +117,25 @@ async function translateDocx(inputPath, outputPath) {
     .filter(paragraph => paragraph.paragraph.length > 0);
 
   const translatedParagraphs = await Promise.all(
-    jsonParagraphs.map(async paragraph => translateParagraph({ paragraph }))
+    jsonParagraphs.map(async paragraph =>
+      translateParagraph({ paragraph, targetLanguage: "Spanish (Argentina)" })
+    )
   );
 
   const translatedParagraphsWithOriginal = translatedParagraphs.map(
     (translatedParagraph, paragraphIndex) => {
-      // Acceder al párrafo original correspondiente.
       const originalParagraph = jsonParagraphs[paragraphIndex];
 
       return {
-        ...translatedParagraph, // mantener la estructura del párrafo traducido
+        ...translatedParagraph,
         nodes: translatedParagraph.nodes.map(translatedNode => {
-          // Encontrar el nodo original usando el índice.
           const originalNode = originalParagraph.nodes.find(
             node => node.index === translatedNode.index
           );
 
           return {
-            ...translatedNode, // mantener la estructura del nodo traducido
-            original: originalNode.originalText, // agregar el texto original al nodo
+            ...translatedNode,
+            original: originalNode.originalText,
           };
         }),
       };

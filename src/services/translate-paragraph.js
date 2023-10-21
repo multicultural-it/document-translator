@@ -8,37 +8,37 @@ const USER_PROMPT_TEMPLATE = `Ensure an accurate and culturally appropriate tran
 Example:
 Input: 
 {
-    "paragraph": "This course can help you better understand LinkedIn Marketing Solutions’ paid products.",
+    "paragraph": "This product is the best on the market.",
     "nodes": [
       {
         "index": 0,
-        "text": "This course can help you better understand "
+        "text": "This product is the "
       },
       {
         "index": 1,
-        "text": "LinkedIn Marketing Solutions"
+        "text": "best "
       },
       {
         "index": 2,
-        "text": "’ paid products."
+        "text": "on the market."
       }
     ]
   }
 Output: 
 {
-  "paragraph": "Este curso puede ayudarte a entender mejor los productos pagados de LinkedIn Marketing Solutions.",
+  "paragraph": "Este producto es el mejor del mercado.",
   "nodes": [
     {
       "index": 0,
-      "translation": "Este curso puede ayudarte a entender mejor "
+      "translation": "Este producto es el "
     },
     {
       "index": 1,
-      "translation": "LinkedIn Marketing Solutions"
+      "translation": "mejor "
     },
     {
       "index": 2,
-      "translation": " los productos pagados."
+      "translation": "del mercado."
     }
   ]
 }
@@ -52,22 +52,22 @@ Output:
 
 `;
 
-function generateUserPrompt({ paragraph }) {
+function generateUserPrompt({ paragraph, targetLanguage }) {
   let nodesString = JSON.stringify(paragraph.nodes, null, 2);
 
-  return USER_PROMPT_TEMPLATE.replace(
-    "{paragraph}",
-    paragraph.paragraph
-  ).replace("{nodes}", nodesString);
+  return USER_PROMPT_TEMPLATE.replace("{paragraph}", paragraph.paragraph)
+    .replace("{nodes}", nodesString)
+    .replace("{targetLanguage}", targetLanguage);
 }
 
 function generateSystemPrompt() {
   return SYSTEM_PROMPT;
 }
 
-async function translateParagraph({ paragraph }) {
+async function translateParagraph({ paragraph, targetLanguage }) {
   const userPrompt = generateUserPrompt({
     paragraph,
+    targetLanguage,
   });
 
   const systemPrompt = generateSystemPrompt({ paragraph });
