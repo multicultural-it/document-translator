@@ -124,3 +124,300 @@ Proponemos dividir la tarea en dos agentes que trabajen en conjunto:
   ]
 }
 ```
+
+✗ node src/index.js Spanish
+Procesando nodo original con índice 0: {
+'$': {
+    'w:rsidDel': '00000000',
+    'w:rsidR': '00000000',
+    'w:rsidRPr': '00000000'
+  },
+  'w:rPr': [
+    {
+      'w:b': [Array],
+      'w:sz': [Array],
+      'w:szCs': [Array],
+      'w:rtl': [Array]
+    }
+  ],
+  'w:t': [ { _: 'TOPIC: Introduction to LinkedIn Ads', '$': [Object] } ]
+}
+Buscando nodo traducido con índice 0...
+n {
+"index": 0,
+"translation": "TEMA: Introducción a los anuncios de LinkedIn"
+}
+nodeIndex 0
+n.index 0
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 0. ¿Coincide con 0? true
+Nodo traducido encontrado para índice 0: {
+index: 0,
+translation: 'TEMA: Introducción a los anuncios de LinkedIn'
+}
+Procesando nodo original con índice 0: {
+'$': {
+    'w:rsidDel': '00000000',
+    'w:rsidR': '00000000',
+    'w:rsidRPr': '00000000'
+  },
+  'w:rPr': [
+    {
+      'w:b': [Array],
+      'w:sz': [Array],
+      'w:szCs': [Array],
+      'w:u': [Array],
+      'w:rtl': [Array]
+    }
+  ],
+  'w:t': [ { _: '1. Introduction', '$': [Object] } ]
+}
+Buscando nodo traducido con índice 0...
+n {
+"index": 0,
+"translation": "1. Introducción"
+}
+nodeIndex 0
+n.index 0
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 0. ¿Coincide con 0? true
+Nodo traducido encontrado para índice 0: { index: 0, translation: '1. Introducción' }
+Procesando nodo original con índice 0: {
+'$': {
+    'w:rsidDel': '00000000',
+    'w:rsidR': '00000000',
+    'w:rsidRPr': '00000000'
+  },
+  'w:rPr': [ { 'w:rtl': [Array] } ],
+  'w:t': [
+    { _: 'This course can help you better understand ', '$': [Object] }
+]
+}
+Buscando nodo traducido con índice 0...
+n {
+"index": 1,
+"translation": "Este curso puede ayudarte a comprender mejor "
+}
+nodeIndex 0
+n.index 1
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 1. ¿Coincide con 0? false
+Buscando nodo traducido con índice 0...
+n {
+"index": 2,
+"translation": "los productos pagos de LinkedIn Marketing Solutions. "
+}
+nodeIndex 0
+n.index 2
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 2. ¿Coincide con 0? false
+Buscando nodo traducido con índice 0...
+n {
+"index": 3,
+"translation": "Cuando termines, serás capaz de crear una campaña publicitaria utilizando el enfoque nativo de LinkedIn, medir tu éxito en Campaign Manager, y optimizar tus objetivos publicitarios. "
+}
+nodeIndex 0
+n.index 3
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 3. ¿Coincide con 0? false
+No se encontró nodo traducido para índice 0
+Procesando nodo original con índice 1: {
+'$': {
+    'w:rsidDel': '00000000',
+    'w:rsidR': '00000000',
+    'w:rsidRPr': '00000000'
+  },
+  'w:rPr': [ { 'w:b': [Array], 'w:rtl': [Array] } ],
+  'w:t': [ { _: 'LinkedIn Marketing Solutions’', '$': [Object] } ]
+}
+Buscando nodo traducido con índice 1...
+n {
+"index": 1,
+"translation": "Este curso puede ayudarte a comprender mejor "
+}
+nodeIndex 1
+n.index 1
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 1. ¿Coincide con 1? true
+Nodo traducido encontrado para índice 1: {
+index: 1,
+translation: 'Este curso puede ayudarte a comprender mejor '
+}
+Procesando nodo original con índice 2: {
+'$': {
+    'w:rsidDel': '00000000',
+    'w:rsidR': '00000000',
+    'w:rsidRPr': '00000000'
+  },
+  'w:rPr': [ { 'w:rtl': [Array] } ],
+  'w:t': [
+    {
+      _: " paid products. When you're done, you'll be able to create an ad campaign using LinkedIn’s native targeting, measure your success in Campaign Manager, and optimize your advertising goals.",
+      '$': [Object]
+}
+]
+}
+Buscando nodo traducido con índice 2...
+n {
+"index": 1,
+"translation": "Este curso puede ayudarte a comprender mejor "
+}
+nodeIndex 2
+n.index 1
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 1. ¿Coincide con 2? false
+Buscando nodo traducido con índice 2...
+n {
+"index": 2,
+"translation": "los productos pagos de LinkedIn Marketing Solutions. "
+}
+nodeIndex 2
+n.index 2
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 2. ¿Coincide con 2? true
+Nodo traducido encontrado para índice 2: {
+index: 2,
+translation: 'los productos pagos de LinkedIn Marketing Solutions. '
+}
+Procesando nodo original con índice 0: {
+'$': {
+    'w:rsidDel': '00000000',
+    'w:rsidR': '00000000',
+    'w:rsidRPr': '00000000'
+  },
+  'w:rPr': [
+    {
+      'w:b': [Array],
+      'w:sz': [Array],
+      'w:szCs': [Array],
+      'w:u': [Array],
+      'w:rtl': [Array]
+    }
+  ],
+  'w:t': [ { _: '3. Why Advertise on LinkedIn?', '$': [Object] } ]
+}
+Buscando nodo traducido con índice 0...
+n {
+"index": 0,
+"translation": "3. ¿Por qué publicitar en LinkedIn?"
+}
+nodeIndex 0
+n.index 0
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 0. ¿Coincide con 0? true
+Nodo traducido encontrado para índice 0: { index: 0, translation: '3. ¿Por qué publicitar en LinkedIn?' }
+Procesando nodo original con índice 0: {
+'$': {
+    'w:rsidDel': '00000000',
+    'w:rsidR': '00000000',
+    'w:rsidRPr': '00000000'
+  },
+  'w:rPr': [
+    {
+      'w:b': [Array],
+      'w:color': [Array],
+      'w:sz': [Array],
+      'w:szCs': [Array],
+      'w:u': [Array],
+      'w:rtl': [Array]
+    }
+  ],
+  'w:t': [ { _: 'Why Do Marketers Love LinkedIn?', '$': [Object] } ]
+}
+Buscando nodo traducido con índice 0...
+n {
+"index": 0,
+"translation": "¿Por qué a los mercadólogos les encanta LinkedIn?"
+}
+nodeIndex 0
+n.index 0
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 0. ¿Coincide con 0? true
+Nodo traducido encontrado para índice 0: {
+index: 0,
+translation: '¿Por qué a los mercadólogos les encanta LinkedIn?'
+}
+Procesando nodo original con índice 0: {
+'$': {
+    'w:rsidDel': '00000000',
+    'w:rsidR': '00000000',
+    'w:rsidRPr': '00000000'
+  },
+  'w:rPr': [ { 'w:rtl': [Array] } ],
+  'w:t': [
+    {
+      _: 'To understand how best to advertise on LinkedIn, it’s important to start with why. In this section, we’ll introduce the LinkedIn audience and environment and the reasons why marketers make LinkedIn a part of their advertising strategy.',
+      '$': [Object]
+}
+]
+}
+Buscando nodo traducido con índice 0...
+n {
+"index": 1,
+"translation": "Para entender cómo publicitar de manera óptima en LinkedIn, es fundamental comenzar con el por qué. "
+}
+nodeIndex 0
+n.index 1
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 1. ¿Coincide con 0? false
+Buscando nodo traducido con índice 0...
+n {
+"index": 2,
+"translation": "En esta sección, presentaremos la audiencia y el entorno de LinkedIn y "
+}
+nodeIndex 0
+n.index 2
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 2. ¿Coincide con 0? false
+Buscando nodo traducido con índice 0...
+n {
+"index": 3,
+"translation": "las razones por las que los especialistas en marketing incluyen LinkedIn en su estrategia publicitaria."
+}
+nodeIndex 0
+n.index 3
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 3. ¿Coincide con 0? false
+No se encontró nodo traducido para índice 0
+Procesando nodo original con índice 0: {
+'$': {
+    'w:rsidDel': '00000000',
+    'w:rsidR': '00000000',
+    'w:rsidRPr': '00000000'
+  },
+  'w:rPr': [ { 'w:rtl': [Array] } ],
+  'w:t': [
+    {
+      _: 'LinkedIn is home to the largest global community of professionals, from senior-level influencers to individual contributors. What’s more, people come to LinkedIn to invest time, not waste it. They’re here to learn, advance their careers, and connect with peers. It’s a platform ideally suited for marketers to connect with B2B and B2C buyers making relatively high-consideration decisions and purchases.',
+      '$': [Object]
+}
+]
+}
+Buscando nodo traducido con índice 0...
+n {
+"index": 0,
+"translation": "LinkedIn es el hogar de la mayor comunidad global de profesionales, desde influyentes de alto nivel hasta contribuyentes individuales. Además, la gente viene a LinkedIn para invertir tiempo, no para desperdiciarlo. Están aquí para aprender, avanzar en sus carreras y conectar con sus pares. Es una plataforma idealmente adecuada para que los comercializadores se conecten con compradores B2B y B2C que toman decisiones y compras de alta consideración."
+}
+nodeIndex 0
+n.index 0
+typeof nodeIndex number
+type of n.index number
+Nodo traducido actual con índice 0. ¿Coincide con 0? true
+Nodo traducido encontrado para índice 0: {
+index: 0,
+translation: 'LinkedIn es el hogar de la mayor comunidad global de profesionales, desde influyentes de alto nivel hasta contribuyentes individuales. Además, la gente viene a LinkedIn para invertir tiempo, no para desperdiciarlo. Están aquí para aprender, avanzar en sus carreras y conectar con sus pares. Es una plataforma idealmente adecuada para que los comercializadores se conecten con compradores B2B y B2C que toman decisiones y compras de alta consideración.'
+}
+(base) ➜ documents-translator git:(master) ✗

@@ -86,9 +86,42 @@ function replaceOriginalParagraphsNodesWithTranslated({
       const originalNodes = findTextNodes(originalParagraph.originalNode);
 
       originalNodes.forEach((originalNode, nodeIndex) => {
-        const translatedNode = translatedParagraph.nodes.find(
-          n => n.index === nodeIndex
-        );
+        console.log(
+          `Procesando nodo original con índice ${nodeIndex}:`,
+          originalNode
+        ); // 1. Log del nodo original y su índice
+
+        const translatedNode = translatedParagraph.nodes.find(n => {
+          console.log(`Buscando nodo traducido con índice ${nodeIndex}...`); // 2. Log de inicio de búsqueda
+          // console.log("n", n); // 2. Log de inicio de búsqueda
+          // loog n deep
+          console.log("n", JSON.stringify(n, null, 2)); // 2. Log de inicio de búsqueda
+          console.log("nodeIndex", nodeIndex);
+          console.log("n.index", n.index);
+          console.log("typeof nodeIndex", typeof nodeIndex);
+          console.log("type of n.index", typeof n.index);
+          const isFound = n.index === nodeIndex; // Comprobación
+          console.log(
+            `Nodo traducido actual con índice ${n.index}. ¿Coincide con ${nodeIndex}? ${isFound}`
+          ); // 2. Resultado de la comprobación
+          return isFound;
+        });
+
+        if (translatedNode) {
+          console.log(
+            `Nodo traducido encontrado para índice ${nodeIndex}:`,
+            translatedNode
+          ); // 3. Nodo traducido encontrado
+        } else {
+          console.log(`No se encontró nodo traducido para índice ${nodeIndex}`); // 3. Nodo traducido no encontrado
+        }
+
+        // console.log("INDEX: ", nodeIndex);
+        // console.log("originalNode", originalNode);
+        // console.log("translatedNode", translatedNode);
+        // log deep
+        // console.log("originalNode", JSON.stringify(originalNode, null, 2));
+        // console.log("translatedNode", JSON.stringify(translatedNode, null, 2));
 
         if (translatedNode) {
           originalNode["w:t"][0] = translatedNode.translation;
@@ -168,20 +201,20 @@ async function translateDocx(inputPath, outputPath) {
   //   )
   // );
 
-  console.log(
-    "translatedParagraphsWithOriginal",
-    JSON.stringify(translatedParagraphsWithOriginal, null, 2)
-  );
+  // console.log(
+  //   "translatedParagraphsWithOriginal",
+  //   JSON.stringify(translatedParagraphsWithOriginal, null, 2)
+  // );
 
   const improvedParagraphs = await processBlocks(
     chunkArray(translatedParagraphsWithOriginal, CHUNK_SIZE),
     improveParagraph
   );
 
-  console.log(
-    "improvedParagraphs",
-    JSON.stringify(improvedParagraphs, null, 2)
-  );
+  // console.log(
+  //   "improvedParagraphs",
+  //   JSON.stringify(improvedParagraphs, null, 2)
+  // );
 
   replaceOriginalParagraphsNodesWithTranslated({
     jsonParagraphs,

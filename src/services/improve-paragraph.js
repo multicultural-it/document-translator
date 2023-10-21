@@ -34,11 +34,11 @@ Output:
 "paragraph": "Este curso puede ayudarlo a comprender mejor los productos pagos de LinkedIn Marketing Solutions.",
 "nodes": [
 {
-"index": 1,
+"index": 0,
 "translation": "Este curso puede ayudarlo a comprender mejor "
 },
 {
-"index": 3,
+"index": 1,
 "translation": "los productos pagos "
 },
 {
@@ -77,8 +77,8 @@ async function improveParagraph({ paragraph, targetLanguage }) {
 
   const systemPrompt = generateSystemPrompt({ targetLanguage });
 
-  console.log("userPrompt", userPrompt);
-  console.log("systemPrompt", systemPrompt);
+  // console.log("userPrompt", userPrompt);
+  // console.log("systemPrompt", systemPrompt);
 
   const result = await handleRetries({
     userPrompt,
@@ -86,7 +86,7 @@ async function improveParagraph({ paragraph, targetLanguage }) {
     paragraph,
   });
 
-  console.log("result", result);
+  // console.log("result", result);
 
   return JSON.parse(result);
 }
