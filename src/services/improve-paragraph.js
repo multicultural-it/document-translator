@@ -38,11 +38,11 @@ Output:
 "translation": "Este curso puede ayudarlo a comprender mejor "
 },
 {
-"index": 1,
+"index": 2,
 "translation": "los productos pagos "
 },
 {
-"index": 2,
+"index": 1,
 "translation": "de LinkedIn Marketing Solutions."
 }
 ]
