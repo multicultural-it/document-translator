@@ -11,15 +11,15 @@ Input:
     "paragraph": "This product is the best on the market.",
     "nodes": [
       {
-        "index": 0,
+        "index": 1,
         "text": "This product is the "
       },
       {
-        "index": 1,
+        "index": 2,
         "text": "best "
       },
       {
-        "index": 2,
+        "index": 3,
         "text": "on the market."
       }
     ]
@@ -29,15 +29,15 @@ Output:
   "paragraph": "Este producto es el mejor del mercado.",
   "nodes": [
     {
-      "index": 0,
+      "index": 1,
       "translation": "Este producto es el "
     },
     {
-      "index": 1,
+      "index": 2,
       "translation": "mejor "
     },
     {
-      "index": 2,
+      "index": 3,
       "translation": "del mercado."
     }
   ]
