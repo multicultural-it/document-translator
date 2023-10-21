@@ -25,7 +25,7 @@ export default class GptService {
       messages: messages,
     };
 
-    console.log("messages", messages);
+    // console.log("messages", messages);
 
     const response = await this.withErrorHandling(fetch, url, {
       method: "POST",

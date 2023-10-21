@@ -3,6 +3,7 @@ import JSZip from "jszip";
 import xml2js from "xml2js";
 import { translateText } from "./translate-text.js";
 import { translateParagraph } from "./translate-paragraph.js";
+import JSON5 from "json5";
 
 async function getDocxContent(inputPath) {
   const content = fs.readFileSync(inputPath);
@@ -58,6 +59,7 @@ function findParagraphNodes(node) {
   }
 
   traverse(node);
+
   return paragraphs;
 }
 
@@ -74,6 +76,7 @@ async function translateDocx(inputPath, outputPath) {
 
   const jsonParagraphs = paragraphs
     .map(node => ({
+      originalNode: node,
       paragraph: getTextFromParagraph(node),
       nodes: findTextNodes(node).map((node, nodeIndex) => ({
         index: nodeIndex,
@@ -86,10 +89,8 @@ async function translateDocx(inputPath, outputPath) {
     jsonParagraphs.map(async paragraph => translateParagraph({ paragraph }))
   );
 
-  console.log("translatedParagraphs", translatedParagraphs);
-
   replaceOriginalParagraphsNodesWithTranslated({
-    paragraphs,
+    jsonParagraphs,
     translatedParagraphs,
   });
 
@@ -104,49 +105,28 @@ async function translateDocx(inputPath, outputPath) {
 }
 
 function replaceOriginalParagraphsNodesWithTranslated({
-  paragraphs,
+  jsonParagraphs,
   translatedParagraphs,
 }) {
-  // 1. Recorremos cada párrafo en paragraphs.
-  paragraphs.forEach((originalParagraph, originalIndex) => {
-    // 2. Encontramos el párrafo correspondiente en translatedParagraphs usando el índice del párrafo.
+  jsonParagraphs.forEach((originalParagraph, originalIndex) => {
     const translatedParagraph = translatedParagraphs.find(
       (_, translatedIndex) => translatedIndex === originalIndex
     );
 
-    console.log("translatedParagraph", translatedParagraph);
-
     if (translatedParagraph) {
-      const jsonTranslatedParagraph = convertStringToJSON(translatedParagraph);
+      const originalNodes = findTextNodes(originalParagraph.originalNode);
 
-      const originalNodes = findTextNodes(originalParagraph);
-      // 3. Recorremos cada nodo en el párrafo actual.
       originalNodes.forEach((originalNode, nodeIndex) => {
-        const translatedNode = jsonTranslatedParagraph.nodes.find(
+        const translatedNode = translatedParagraph.nodes.find(
           n => n.index === nodeIndex
         );
 
-        console.log("translatedNode", translatedNode);
-
         if (translatedNode) {
-          // Reemplazamos el contenido del nodo original con la traducción.
           originalNode["w:t"][0] = translatedNode.translation;
-          console.log(`originalNode["w:t"][0]`, originalNode["w:t"][0]);
         }
       });
     }
   });
-}
-
-function convertStringToJSON(stringData) {
-  let jsonData;
-  try {
-    jsonData = JSON.parse(stringData);
-  } catch (error) {
-    console.error("Error al convertir la cadena a JSON:", error);
-    return null;
-  }
-  return jsonData;
 }
 
 export { translateDocx };

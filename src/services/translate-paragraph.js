@@ -78,7 +78,10 @@ async function translateParagraph({ paragraph }) {
     paragraph,
   });
 
-  return result.replace(/"/g, "");
+  console.log("result", result);
+
+  return JSON.parse(result);
+  // return result;
 }
 
 async function handleRetries({ userPrompt, systemPrompt, paragraph }) {
