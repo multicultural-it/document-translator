@@ -1,1 +1,5 @@
-{"type":"module","dependencies":{"jszip":"^3.10.1","xml2js":"^0.6.2"}}
+{
+    "main": "src/services/translate-docx.js",
+    "type":"module",
+    "dependencies":{"jszip":"^3.10.1","xml2js":"^0.6.2"}
+}

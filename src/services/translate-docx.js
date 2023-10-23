@@ -155,9 +155,11 @@ function replaceOriginalParagraphsNodesWithTranslated({
   });
 }
 
-async function translateDocx(inputPath, outputPath) {
-  const docxContent = await getDocxContent(inputPath);
+// async function translateDocx(inputPath, outputPath) {
+//   const docxContent = await getDocxContent(inputPath);
 
+// translateDocx will be exported to be used as a dependency in another project. docxContent will be passed as a param.
+async function translateDocx(docxContent) {
   const documentObj = await getDocumentObjectFromDocxContent(docxContent);
 
   const paragraphs = findParagraphNodes(documentObj["w:document"]["w:body"][0]);
@@ -243,7 +245,10 @@ async function translateDocx(inputPath, outputPath) {
     docxContent
   );
 
-  saveTranslatedDocxContent(outputPath, translatedDocxContent);
+  // saveTranslatedDocxContent(outputPath, translatedDocxContent);
+
+  // translateDocx will be exported to be used as a dependency in another project. So, we need to return the translated content.
+  return translatedDocxContent;
 }
 
 function chunkArray(myArray, chunk_size) {
