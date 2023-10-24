@@ -64,23 +64,6 @@ function generateSystemPrompt() {
   return SYSTEM_PROMPT;
 }
 
-// async function translateParagraph({ paragraph, targetLanguage }) {
-//   const userPrompt = generateUserPrompt({
-//     paragraph,
-//     targetLanguage,
-//   });
-
-//   const systemPrompt = generateSystemPrompt({ paragraph });
-
-//   const result = await handleRetries({
-//     userPrompt,
-//     systemPrompt,
-//     paragraph,
-//   });
-
-//   return JSON.parse(result);
-// }
-
 async function translateParagraph({ paragraph, targetLanguage }) {
   const userPrompt = generateUserPrompt({
     paragraph,
@@ -133,10 +116,6 @@ async function handleRetries({ userPrompt, systemPrompt }) {
 
       return translatedParagraph;
     } catch (error) {
-      console.error("HANDLE RETRIES ERROR: ", error);
-      console.log("userPrompt", userPrompt);
-      console.log("systemPrompt", systemPrompt);
-      console.error("FIN HANDLE RETRIES ERROR: ", error);
       if (retryCount === RETRY_LIMIT - 1) {
         // Si es el último intento
         return { error }; // Devuelve el error
@@ -146,58 +125,3 @@ async function handleRetries({ userPrompt, systemPrompt }) {
 }
 
 export { translateParagraph };
-
-// async function improveParagraph({ paragraph, targetLanguage }) {
-//   const userPrompt = generateUserPrompt({
-//     paragraph,
-//     targetLanguage,
-//   });
-
-//   const systemPrompt = generateSystemPrompt({ targetLanguage });
-
-//   let result;
-
-//   while (true) {
-//     result = await handleRetries({
-//       userPrompt,
-//       systemPrompt,
-//     });
-
-//     if (result.error && result.error.code === "rate_limit_exceeded") {
-//       console.log(
-//         "Límite de tasa alcanzado. Esperando 20 segundos antes de reintentar..."
-//       );
-
-//       await new Promise(resolve => setTimeout(resolve, 20000));
-//     } else {
-//       break;
-//     }
-//   }
-
-//   console.log("result", result);
-
-//   return JSON.parse(result);
-// }
-
-// async function handleRetries({ userPrompt, systemPrompt }) {
-//   for (let retryCount = 0; retryCount < RETRY_LIMIT; retryCount++) {
-//     try {
-//       const gptService = new GptService(process.env.OPENAI_API_KEY);
-
-//       const translatedParagraph = await gptService.getApiResponse([
-//         { role: "system", content: systemPrompt },
-//         { role: "user", content: userPrompt },
-//       ]);
-
-//       return translatedParagraph;
-//     } catch (error) {
-//       console.error("HANDLE RETRIES ERROR: ", error);
-//       console.log("userPrompt", userPrompt);
-//       console.log("systemPrompt", systemPrompt);
-//       console.error("FIN HANDLE RETRIES ERROR: ", error);
-//       if (retryCount === RETRY_LIMIT - 1) {
-//         return { error };
-//       }
-//     }
-//   }
-// }

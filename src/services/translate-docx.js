@@ -170,15 +170,6 @@ function replaceOriginalParagraphsNodesWithTranslated({
   });
 }
 
-async function translateDocxLocal(inputPath, outputPath) {
-  const docxContent = await getDocxContent(inputPath);
-  // console.log("docxContent: ", docxContent);
-  // console.log("type of docxContent: ", typeof docxContent);
-
-  const translatedDocxContent = await translateDocx(docxContent);
-  saveTranslatedDocxContent(outputPath, translatedDocxContent);
-}
-
 async function translateDocx(docxContent) {
   const documentObj = await getDocumentObjectFromDocxContent(docxContent);
 
@@ -210,6 +201,7 @@ async function translateDocx(docxContent) {
     }
     return results;
   }
+
   const CHUNK_SIZE = 8;
   const blocks = chunkArray(jsonParagraphs, CHUNK_SIZE);
   const translatedParagraphs = await processBlocks(blocks, translateParagraph);
@@ -259,7 +251,12 @@ async function translateDocx(docxContent) {
   );
 
   return translatedDocxContent;
-  // saveTranslatedDocxContent(outputPath, translatedDocxContent);
+}
+
+async function translateDocxLocal(inputPath, outputPath) {
+  const docxContent = await getDocxContent(inputPath);
+  const translatedDocxContent = await translateDocx(docxContent);
+  saveTranslatedDocxContent(outputPath, translatedDocxContent);
 }
 
 export { translateDocx, translateDocxLocal, getZipContent };

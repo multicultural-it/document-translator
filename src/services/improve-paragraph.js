@@ -69,38 +69,6 @@ function generateSystemPrompt({ targetLanguage }) {
   return SYSTEM_PROMPT.replace("{targetLanguage}", targetLanguage);
 }
 
-// async function improveParagraph({ paragraph, targetLanguage }) {
-//   const userPrompt = generateUserPrompt({
-//     paragraph,
-//     targetLanguage,
-//   });
-
-//   const systemPrompt = generateSystemPrompt({ targetLanguage });
-
-//   let result;
-
-//   while (true) {
-//     result = await handleRetries({
-//       userPrompt,
-//       systemPrompt,
-//     });
-
-//     if (result.error && result.error.code === "rate_limit_exceeded") {
-//       console.log(
-//         "Límite de tasa alcanzado. Esperando 20 segundos antes de reintentar..."
-//       );
-
-//       await new Promise(resolve => setTimeout(resolve, 20000));
-//     } else {
-//       break;
-//     }
-//   }
-
-//   console.log("result", result);
-
-//   return JSON.parse(result);
-// }
-
 async function improveParagraph({ paragraph, targetLanguage }) {
   const userPrompt = generateUserPrompt({
     paragraph,
@@ -118,10 +86,9 @@ async function improveParagraph({ paragraph, targetLanguage }) {
       systemPrompt,
     });
 
-    // Intentamos parsear el resultado
     try {
       parsedResult = JSON.parse(result);
-      break; // Si el parseo es exitoso, salimos del bucle
+      break;
     } catch (jsonError) {
       console.log("Error al parsear JSON. Reintentando...");
     }
@@ -165,39 +132,3 @@ async function handleRetries({ userPrompt, systemPrompt }) {
 }
 
 export { improveParagraph };
-
-// async function handleRetries({ userPrompt, systemPrompt }) {
-//   for (let retryCount = 0; retryCount < RETRY_LIMIT; retryCount++) {
-//     try {
-//       const gptService = new GptService(process.env.OPENAI_API_KEY);
-
-//       const translatedParagraph = await gptService.getApiResponse([
-//         { role: "system", content: systemPrompt },
-//         { role: "user", content: userPrompt },
-//       ]);
-
-//       return translatedParagraph;
-//     } catch (error) {
-//       console.error(error);
-//       return error;
-//     }
-//   }
-// }
-
-// async function improveParagraph({ paragraph, targetLanguage }) {
-//   const userPrompt = generateUserPrompt({
-//     paragraph,
-//     targetLanguage,
-//   });
-
-//   const systemPrompt = generateSystemPrompt({ targetLanguage });
-
-//   const result = await handleRetries({
-//     userPrompt,
-//     systemPrompt,
-//   });
-
-//   console.log("result", result);
-
-//   return JSON.parse(result);
-// }
