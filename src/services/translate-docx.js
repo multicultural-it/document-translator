@@ -6,6 +6,16 @@ import { improveParagraph } from "./improve-paragraph.js";
 
 async function getDocxContent(inputPath) {
   const content = fs.readFileSync(inputPath);
+  console.log("content: ", content);
+  console.log("type of content: ", typeof content);
+  const zip = new JSZip();
+  await zip.loadAsync(content);
+  return zip;
+}
+
+// Blob to zip
+async function getZipContent(blob) {
+  const content = await blob.arrayBuffer();
   const zip = new JSZip();
   await zip.loadAsync(content);
   return zip;
@@ -162,8 +172,8 @@ function replaceOriginalParagraphsNodesWithTranslated({
 
 async function translateDocxLocal(inputPath, outputPath) {
   const docxContent = await getDocxContent(inputPath);
-  console.log("docxContent: ", docxContent);
-  console.log("type of docxContent: ", typeof docxContent);
+  // console.log("docxContent: ", docxContent);
+  // console.log("type of docxContent: ", typeof docxContent);
 
   const translatedDocxContent = await translateDocx(docxContent);
   saveTranslatedDocxContent(outputPath, translatedDocxContent);
@@ -252,4 +262,4 @@ async function translateDocx(docxContent) {
   // saveTranslatedDocxContent(outputPath, translatedDocxContent);
 }
 
-export { translateDocx, translateDocxLocal };
+export { translateDocx, translateDocxLocal, getZipContent };
