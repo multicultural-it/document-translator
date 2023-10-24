@@ -96,13 +96,12 @@ async function translateParagraph({ paragraph, targetLanguage }) {
     result = await handleRetries({
       userPrompt,
       systemPrompt,
-      paragraph, // Lo agregué porque estaba presente en la llamada original a handleRetries
+      paragraph,
     });
 
-    // Intentamos parsear el resultado
     try {
       parsedResult = JSON.parse(result);
-      break; // Si el parseo es exitoso, salimos del bucle
+      break;
     } catch (jsonError) {
       console.log("Error al parsear JSON. Reintentando...");
     }
@@ -124,7 +123,8 @@ async function translateParagraph({ paragraph, targetLanguage }) {
 async function handleRetries({ userPrompt, systemPrompt }) {
   for (let retryCount = 0; retryCount < RETRY_LIMIT; retryCount++) {
     try {
-      const gptService = new GptService(process.env.OPENAI_API_KEY);
+      // const gptService = new GptService(process.env.OPENAI_API_KEY);
+      const gptService = new GptService(process.env.GG_OPENAI__API_KEY);
 
       const translatedParagraph = await gptService.getApiResponse([
         { role: "system", content: systemPrompt },

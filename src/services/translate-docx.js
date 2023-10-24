@@ -11,6 +11,15 @@ async function getDocxContent(inputPath) {
   return zip;
 }
 
+function chunkArray(myArray, chunk_size) {
+  const cloneMyArray = [...myArray];
+  let results = [];
+  while (cloneMyArray.length) {
+    results.push(cloneMyArray.splice(0, chunk_size));
+  }
+  return results;
+}
+
 async function getDocumentObjectFromDocxContent(zipContent) {
   const documentXml = await zipContent
     .file("word/document.xml")
@@ -145,19 +154,22 @@ function replaceOriginalParagraphsNodesWithTranslated({
           } else {
             console.log("clonedNode no tiene texto o es nulo");
           }
-
-          // originalNode["w:t"][0] = JSON.parse(
-          //   JSON.stringify(originalNode["w:t"][0])
-          // );
         }
       });
     }
   });
 }
 
-async function translateDocx(inputPath, outputPath) {
+async function translateDocxLocal(inputPath, outputPath) {
   const docxContent = await getDocxContent(inputPath);
+  console.log("docxContent: ", docxContent);
+  console.log("type of docxContent: ", typeof docxContent);
 
+  const translatedDocxContent = await translateDocx(docxContent);
+  saveTranslatedDocxContent(outputPath, translatedDocxContent);
+}
+
+async function translateDocx(docxContent) {
   const documentObj = await getDocumentObjectFromDocxContent(docxContent);
 
   const paragraphs = findParagraphNodes(documentObj["w:document"]["w:body"][0]);
@@ -167,18 +179,11 @@ async function translateDocx(inputPath, outputPath) {
       originalNode: node,
       paragraph: getTextFromParagraph(node),
       nodes: findTextNodes(node).map((node, nodeIndex) => ({
-        // index: nodeIndex,
         index: nodeIndex + 1,
         originalText: node["w:t"][0]._,
       })),
     }))
     .filter(paragraph => paragraph.paragraph.length > 0);
-
-  // const translatedParagraphs = await Promise.all(
-  //   jsonParagraphs.map(async paragraph =>
-  //     translateParagraph({ paragraph, targetLanguage: "Spanish (Argentina)" })
-  //   )
-  // );
 
   async function processBlocks(blocks, fn) {
     let results = [];
@@ -243,16 +248,8 @@ async function translateDocx(inputPath, outputPath) {
     docxContent
   );
 
-  saveTranslatedDocxContent(outputPath, translatedDocxContent);
+  return translatedDocxContent;
+  // saveTranslatedDocxContent(outputPath, translatedDocxContent);
 }
 
-function chunkArray(myArray, chunk_size) {
-  const cloneMyArray = [...myArray];
-  let results = [];
-  while (cloneMyArray.length) {
-    results.push(cloneMyArray.splice(0, chunk_size));
-  }
-  return results;
-}
-
-export { translateDocx };
+export { translateDocx, translateDocxLocal };
