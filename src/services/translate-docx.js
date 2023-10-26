@@ -196,7 +196,8 @@ async function translateDocx(docxContent) {
             paragraph,
             sourceLanguage: "English",
             // targetLanguage: "Spanish (Argentina)",
-            targetLanguage: "French (France)",
+            // targetLanguage: "French (France)",
+            targetLanguage: "Arabic (Egypt)",
           })
         )
       );
