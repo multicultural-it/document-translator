@@ -2,9 +2,15 @@ import GptService from "./gpt-service.js";
 
 const RETRY_LIMIT = 3;
 
-const SYSTEM_PROMPT = `You are a specialist in assembling coherent translations using node translations and ensuring cultural appropriateness. The target language is {targetLanguage}. When given an original paragraph and an array of nodes with their original text, and indices, your primary task is to construct a coherent translated paragraph. If the concatenated node translations don't make sense or don't match the paragraph's meaning, rearrange the nodes and adjust the translations if needed. Ensure to keep the nodes in a specific order, defined by their indices. Furthermore, make sure your translations are clear, engaging, and culturally appropriate. Remember to escape special characters like quotes and apostrophes. Keep in mind that your response will be processed using the JSON.parse() function.`;
+// const SYSTEM_PROMPT = `You are a specialist in assembling coherent translations using node translations and ensuring cultural appropriateness. The target language is {targetLanguage}. When given an original paragraph and an array of nodes with their original text, and indices, your primary task is to construct a coherent translated paragraph. If the concatenated node translations don't make sense or don't match the paragraph's meaning, rearrange the nodes and adjust the translations if needed. Ensure to keep the nodes in a specific order, defined by their indices. Furthermore, make sure your translations are clear, engaging, and culturally appropriate. Remember to escape special characters like quotes and apostrophes. Keep in mind that your response will be processed using the JSON.parse() function.`;
 
-const USER_PROMPT_TEMPLATE = `Given a paragraph and its node original text and translations, your primary task is to ensure that the concatenated node translations provide a coherent and culturally appropriate translation of the entire paragraph. If the current order of nodes doesn't produce a clear translation, rearrange the nodes and adjust the translations accordingly. The translation should resonate with {targetLanguage} speakers. Ensure the resulting paragraph maintains the original context, meaning, and cultural nuances. Remember to escape special characters like quotes and apostrophes, and be aware that your response will be processed using the JSON.parse() function. The example below illustrates how you should proceed. Pay attention to how some texts are changed from one node to another if the indices are changed. That is important if necessary.
+const SYSTEM_PROMPT = `You are a specialist in assembling coherent translations using node translations and ensuring cultural appropriateness. The source language is {sourceLanguage} and the target language is {targetLanguage}. When given an original paragraph and an array of nodes with their original text, and indices, your primary task is to construct a coherent translated paragraph. If the concatenated node translations don't make sense or don't match the paragraph's meaning, rearrange the nodes and adjust the translations if needed. Ensure to keep the nodes in a specific order, defined by their indices. Furthermore, make sure your translations are clear, engaging, and culturally appropriate. Remember to escape special characters like quotes and apostrophes. Keep in mind that your response will be processed using the JSON.parse() function.`;
+
+// const USER_PROMPT_TEMPLATE = `Given a paragraph and its node original text and translations, your primary task is to ensure that the concatenated node translations provide a coherent and culturally appropriate translation of the entire paragraph. If the current order of nodes doesn't produce a clear translation, rearrange the nodes and adjust the translations accordingly. The translation should resonate with {targetLanguage} speakers. Ensure the resulting paragraph maintains the original context, meaning, and cultural nuances. Remember to escape special characters like quotes and apostrophes, and be aware that your response will be processed using the JSON.parse() function. The example below illustrates how you should proceed. Pay attention to how some texts are changed from one node to another if the indices are changed. That is important if necessary.
+
+// Example:
+
+const USER_PROMPT_TEMPLATE = `Given a paragraph and its node original text and translations, your primary task is to ensure that the concatenated node translations provide a coherent and culturally appropriate translation of the entire paragraph from {sourceLanguage} to {targetLanguage}. If the current order of nodes doesn't produce a clear translation, rearrange the nodes and adjust the translations accordingly. Ensure the resulting paragraph maintains the original context, meaning, and cultural nuances. Remember to escape special characters like quotes and apostrophes, and be aware that your response will be processed using the JSON.parse() function. The example below is provided to guide the structure of the response, regardless of the source and target languages presented. Your focus should be on the quality and coherence of the translation.
 
 Example:
 Input:
@@ -53,27 +59,36 @@ Output:
 
 `;
 
-function generateUserPrompt({ paragraph, targetLanguage }) {
+function generateUserPrompt({ paragraph, sourceLanguage, targetLanguage }) {
   let nodesString = JSON.stringify(paragraph.nodes, null, 2);
 
   console.log("nodesString", nodesString);
 
   return USER_PROMPT_TEMPLATE.replace("{paragraph}", paragraph.paragraph)
     .replace("{nodes}", nodesString)
+    .replace("{sourceLanguage}", sourceLanguage)
     .replace("{targetLanguage}", targetLanguage);
 }
 
-function generateSystemPrompt({ targetLanguage }) {
-  return SYSTEM_PROMPT.replace("{targetLanguage}", targetLanguage);
+function generateSystemPrompt({ sourceLanguage, targetLanguage }) {
+  return SYSTEM_PROMPT.replace("{sourceLanguage}", sourceLanguage).replace(
+    "{targetLanguage}",
+    targetLanguage
+  );
 }
 
-async function translateImproveParagraph({ paragraph, targetLanguage }) {
+async function translateImproveParagraph({
+  paragraph,
+  sourceLanguage,
+  targetLanguage,
+}) {
   const userPrompt = generateUserPrompt({
     paragraph,
+    sourceLanguage,
     targetLanguage,
   });
 
-  const systemPrompt = generateSystemPrompt({ targetLanguage });
+  const systemPrompt = generateSystemPrompt({ sourceLanguage, targetLanguage });
 
   let result;
   let parsedResult;

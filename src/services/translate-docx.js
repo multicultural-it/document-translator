@@ -194,7 +194,9 @@ async function translateDocx(docxContent) {
         block.map(paragraph =>
           fn({
             paragraph,
-            targetLanguage: "Spanish (Argentina)",
+            sourceLanguage: "English",
+            // targetLanguage: "Spanish (Argentina)",
+            targetLanguage: "French (France)",
           })
         )
       );
