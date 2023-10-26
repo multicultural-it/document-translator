@@ -2,7 +2,7 @@ import GptService from "./gpt-service.js";
 
 const RETRY_LIMIT = 3;
 
-const SYSTEM_PROMPT = `You are a specialist in assembling coherent translations using node translations and ensuring cultural appropriateness. The target language is {targetLanguage}. When given an original paragraph and an array of nodes with their original text, their translations, and indices, your primary task is to construct a coherent translated paragraph. If the concatenated node translations don't make sense or don't match the paragraph's meaning, rearrange the nodes and adjust the translations if needed. Ensure to keep the nodes in a specific order, defined by their indices. Furthermore, make sure your translations are clear, engaging, and culturally appropriate. Remember to escape special characters like quotes and apostrophes. Keep in mind that your response will be processed using the JSON.parse() function.`;
+const SYSTEM_PROMPT = `You are a specialist in assembling coherent translations using node translations and ensuring cultural appropriateness. The target language is {targetLanguage}. When given an original paragraph and an array of nodes with their original text, and indices, your primary task is to construct a coherent translated paragraph. If the concatenated node translations don't make sense or don't match the paragraph's meaning, rearrange the nodes and adjust the translations if needed. Ensure to keep the nodes in a specific order, defined by their indices. Furthermore, make sure your translations are clear, engaging, and culturally appropriate. Remember to escape special characters like quotes and apostrophes. Keep in mind that your response will be processed using the JSON.parse() function.`;
 
 const USER_PROMPT_TEMPLATE = `Given a paragraph and its node original text and translations, your primary task is to ensure that the concatenated node translations provide a coherent and culturally appropriate translation of the entire paragraph. If the current order of nodes doesn't produce a clear translation, rearrange the nodes and adjust the translations accordingly. The translation should resonate with {targetLanguage} speakers. Ensure the resulting paragraph maintains the original context, meaning, and cultural nuances. Remember to escape special characters like quotes and apostrophes, and be aware that your response will be processed using the JSON.parse() function. The example below illustrates how you should proceed.
 
@@ -116,10 +116,10 @@ async function handleRetries({ userPrompt, systemPrompt }) {
 
       return translatedParagraph;
     } catch (error) {
-      console.error("HANDLE RETRIES ERROR: ", error);
-      console.log("userPrompt", userPrompt);
-      console.log("systemPrompt", systemPrompt);
-      console.error("FIN HANDLE RETRIES ERROR: ", error);
+      // console.error("HANDLE RETRIES ERROR: ", error);
+      // console.log("userPrompt", userPrompt);
+      // console.log("systemPrompt", systemPrompt);
+      // console.error("FIN HANDLE RETRIES ERROR: ", error);
       if (retryCount === RETRY_LIMIT - 1) {
         // Si es el último intento
         return { error }; // Devuelve el error
