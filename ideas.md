@@ -1,5 +1,10 @@
 #####################################################################################################################
 
+3. detect language hacer
+4. alerta al querer cerrar mientras traduce o mientras haya un archivo adjunto. ahi no permiter cerrar de golpe.
+
+#####################################################################################################################
+
 Open xml sdk
 http://www.ericwhite.com/blog/open-xml-sdk-for-javascript/
 
