@@ -238,8 +238,8 @@ async function translateDocxLocal(inputPath, outputPath) {
   // const translatedDocxContent = await translateDocx(docxContent);
   const translatedDocxContent = await translateDocx({
     docxContent,
-    sourceLanguage: "English",
-    targetLanguage: "Arabic (Egypt)",
+    sourceLanguage: "Detect language",
+    targetLanguage: "Chinese (Simplified)",
   });
   saveTranslatedDocxContent(outputPath, translatedDocxContent);
 }
