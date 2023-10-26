@@ -10,42 +10,42 @@ The example below illustrates how you should proceed. Ensure the resulting parag
 Example:
 Input:
 {
-"paragraph": "This course can help you better understand LinkedIn Marketing Solutions’ paid products.",
-"nodes": [
-{
-"index": 1,
-"original": "This course can help you better "understand" ",
-"translation": "Este curso puede ayudarlo a comprender mejor"
-},
-{
-"index": 2,
-"original": "LinkedIn Marketing Solutions",
-"translation": "LinkedIn Marketing Solutions"
-},
-{
-"index": 3,
-"original": "’ paid products.",
-"translation": "los productos pagos."
-}
-]
+  "paragraph": "This course can help you better understand LinkedIn Marketing Solutions’ paid products.",
+  "nodes": [
+    {
+      "index": 1,
+      "original": "This course can help you better "understand" ",
+      "translation": "Este curso puede ayudarlo a comprender mejor"
+    },
+    {
+      "index": 2,
+      "original": "LinkedIn Marketing Solutions",
+      "translation": "LinkedIn Marketing Solutions"
+    },
+    {
+      "index": 3,
+      "original": "’ paid products.",
+      "translation": "los productos pagos."
+    }
+  ]
 }
 Output:
 {
-"paragraph": "Este curso puede ayudarlo a \\"comprender\\" mejor los productos pagos de LinkedIn Marketing Solutions.",
-"nodes": [
-{
-"index": 1,
-"translation": "Este curso puede ayudarlo a \\"comprender\\" mejor "
-},
-{
-"index": 3,
-"translation": "los productos pagos "
-},
-{
-"index": 2,
-"translation": "de LinkedIn Marketing Solutions."
-}
-]
+  "paragraph": "Este curso puede ayudarlo a \\"comprender\\" mejor los productos pagos de LinkedIn Marketing Solutions.",
+  "nodes": [
+    {
+      "index": 1,
+      "translation": "Este curso puede ayudarlo a \\"comprender\\" mejor "
+    },
+    {
+      "index": 3,
+      "translation": "los productos pagos  "
+    },
+    {
+      "index": 2,
+      "translation": "de LinkedIn Marketing Solutions."
+    }
+  ]
 }
 
 Input: 
@@ -110,7 +110,8 @@ async function improveParagraph({ paragraph, targetLanguage }) {
 async function handleRetries({ userPrompt, systemPrompt }) {
   for (let retryCount = 0; retryCount < RETRY_LIMIT; retryCount++) {
     try {
-      const gptService = new GptService(process.env.OPENAI_API_KEY);
+      // const gptService = new GptService(process.env.OPENAI_API_KEY);
+      const gptService = new GptService(process.env.GG_OPENAI__API_KEY);
 
       const translatedParagraph = await gptService.getApiResponse([
         { role: "system", content: systemPrompt },

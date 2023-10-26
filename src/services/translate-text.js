@@ -34,7 +34,8 @@ function generateSystemPrompt({ targetLanguage }) {
 async function handleRetries({ userPrompt, systemPrompt, chunk }) {
   for (let retryCount = 0; retryCount < RETRY_LIMIT; retryCount++) {
     try {
-      const gptService = new GptService(process.env.OPENAI_API_KEY);
+      // const gptService = new GptService(process.env.OPENAI_API_KEY);
+      const gptService = new GptService(process.env.GG_OPENAI__API_KEY);
 
       const dirtyTranslatedChunk = await gptService.getApiResponse([
         { role: "system", content: systemPrompt },
