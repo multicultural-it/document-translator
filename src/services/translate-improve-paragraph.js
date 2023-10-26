@@ -31,15 +31,15 @@ Output:
   "nodes": [
     {
       "index": 1,
-      "translation": "Este curso puede ayudarlo a \\"comprender\\" mejor "
+      "translation": "Este curso puede ayudarlo a \\"comprender\\" mejor los productos pagos de "
     },
     {
       "index": 2,
-      "translation": "los productos pagos  "
+      "translation": "LinkedIn Marketing Solutions"
     },
     {
       "index": 3,
-      "translation": "de LinkedIn Marketing Solutions. Por lo tanto, si eres un comercializador, vendedor o agencia, este curso puede ayudarte."
+      "translation": ". Por lo tanto, si eres un comercializador, vendedor o agencia, este curso puede ayudarte."
     }
   ]
 }
