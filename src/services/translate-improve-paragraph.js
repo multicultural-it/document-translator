@@ -34,11 +34,11 @@ Output:
       "translation": "Este curso puede ayudarlo a \\"comprender\\" mejor "
     },
     {
-      "index": 3,
+      "index": 2,
       "translation": "los productos pagos  "
     },
     {
-      "index": 2,
+      "index": 3,
       "translation": "de LinkedIn Marketing Solutions. Por lo tanto, si eres un comercializador, vendedor o agencia, este curso puede ayudarte."
     }
   ]
