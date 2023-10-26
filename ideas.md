@@ -1,3 +1,17 @@
+#####################################################################################################################
+
+Open xml sdk
+http://www.ericwhite.com/blog/open-xml-sdk-for-javascript/
+
+#####################################################################################################################
+
+Agente hablante nativo de árabe (preferiblemente con conocimientos en marketing o el campo relevante)
+Naturalidad y Fluidez:
+
+En la sección donde se menciona: "LinkedIn is home to the largest global community of professionals, from senior-level influencers to individual contributors.", la traducción parece un poco literal. Aunque captura el significado, la estructura de la oración podría haber sido adaptada para sonar más natural en árabe, en lugar de adherirse estrictamente a la estructura del inglés.
+
+#####################################################################################################################
+
 ### Problema
 
 Al traducir documentos `.docx`, estructurados como archivos XML con diferentes nodos internos, se presenta un desafío de consistencia en la traducción. Este desafío es más evidente cuando una oración se fragmenta en múltiples nodos debido a estilos de formato (como negrita, cursiva, etc.).

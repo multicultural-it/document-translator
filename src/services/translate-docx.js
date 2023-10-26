@@ -171,7 +171,7 @@ function replaceOriginalParagraphsNodesWithTranslated({
   });
 }
 
-async function translateDocx(docxContent) {
+async function translateDocx({ docxContent, sourceLanguage, targetLanguage }) {
   const documentObj = await getDocumentObjectFromDocxContent(docxContent);
 
   const paragraphs = findParagraphNodes(documentObj["w:document"]["w:body"][0]);
@@ -187,17 +187,19 @@ async function translateDocx(docxContent) {
     }))
     .filter(paragraph => paragraph.paragraph.length > 0);
 
-  async function processBlocks(blocks, fn) {
+  async function processBlocks({ blocks, fn, sourceLanguage, targetLanguage }) {
     let results = [];
     for (let block of blocks) {
       let translatedBlock = await Promise.all(
         block.map(paragraph =>
           fn({
             paragraph,
-            sourceLanguage: "English",
+            // sourceLanguage: "English",
             // targetLanguage: "Spanish (Argentina)",
             // targetLanguage: "French (France)",
-            targetLanguage: "Arabic (Egypt)",
+            // targetLanguage: "Arabic (Egypt)",
+            sourceLanguage,
+            targetLanguage,
           })
         )
       );
@@ -209,51 +211,12 @@ async function translateDocx(docxContent) {
   const CHUNK_SIZE = 8;
   const blocks = chunkArray(jsonParagraphs, CHUNK_SIZE);
 
-  const improvedParagraphs = await processBlocks(
+  const improvedParagraphs = await processBlocks({
     blocks,
-    translateImproveParagraph
-  );
-
-  console.log(
-    "improvedParagraphs: ",
-    JSON.stringify(improvedParagraphs, null, 2)
-  );
-
-  // const translatedParagraphs = await processBlocks(blocks, translateParagraph);
-
-  // const translatedParagraphsWithOriginal = translatedParagraphs.map(
-  //   (translatedParagraph, paragraphIndex) => {
-  //     const originalParagraph = jsonParagraphs[paragraphIndex];
-
-  //     return {
-  //       ...translatedParagraph,
-  //       nodes: translatedParagraph.nodes.map(translatedNode => {
-  //         const originalNode = originalParagraph.nodes.find(node => {
-  //           console.log("original index: ", node.index);
-  //           console.log("translated index: ", translatedNode.index);
-
-  //           const translatedIndex = translatedNode.index ?? 1;
-
-  //           return node.index === translatedIndex;
-  //         });
-
-  //         console.log("originalNode: ", originalNode);
-  //         console.log("translatedNode: ", translatedNode);
-
-  //         return {
-  //           ...translatedNode,
-  //           original: originalNode.originalText,
-  //           translation: translatedNode.translation,
-  //         };
-  //       }),
-  //     };
-  //   }
-  // );
-
-  // const improvedParagraphs = await processBlocks(
-  //   chunkArray(translatedParagraphsWithOriginal, CHUNK_SIZE),
-  //   improveParagraph
-  // );
+    fn: translateImproveParagraph,
+    sourceLanguage,
+    targetLanguage,
+  });
 
   replaceOriginalParagraphsNodesWithTranslated({
     jsonParagraphs,
@@ -270,8 +233,49 @@ async function translateDocx(docxContent) {
 
 async function translateDocxLocal(inputPath, outputPath) {
   const docxContent = await getDocxContent(inputPath);
-  const translatedDocxContent = await translateDocx(docxContent);
+  // const translatedDocxContent = await translateDocx(docxContent);
+  const translatedDocxContent = await translateDocx({
+    docxContent,
+    sourceLanguage: "English",
+    targetLanguage: "Arabic (Egypt)",
+  });
   saveTranslatedDocxContent(outputPath, translatedDocxContent);
 }
 
 export { translateDocx, translateDocxLocal, getZipContent };
+
+// const translatedParagraphs = await processBlocks(blocks, translateParagraph);
+
+// const translatedParagraphsWithOriginal = translatedParagraphs.map(
+//   (translatedParagraph, paragraphIndex) => {
+//     const originalParagraph = jsonParagraphs[paragraphIndex];
+
+//     return {
+//       ...translatedParagraph,
+//       nodes: translatedParagraph.nodes.map(translatedNode => {
+//         const originalNode = originalParagraph.nodes.find(node => {
+//           console.log("original index: ", node.index);
+//           console.log("translated index: ", translatedNode.index);
+
+//           const translatedIndex = translatedNode.index ?? 1;
+
+//           return node.index === translatedIndex;
+//         });
+
+//         console.log("originalNode: ", originalNode);
+//         console.log("translatedNode: ", translatedNode);
+
+//         return {
+//           ...translatedNode,
+//           original: originalNode.originalText,
+//           translation: translatedNode.translation,
+//         };
+//       }),
+//     };
+//   }
+// );
+
+// const improvedParagraphs = await processBlocks(
+//   chunkArray(translatedParagraphsWithOriginal, CHUNK_SIZE),
+//   improveParagraph
+// );
