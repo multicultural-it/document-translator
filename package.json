@@ -1,5 +1,5 @@
 {
-    "version": "1.0.7",
+    "version": "1.0.8",
     "main": "src/services/translate-docx.js",
     "type": "module",
     "dependencies": {

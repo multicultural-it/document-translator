@@ -56,6 +56,8 @@ Output:
 function generateUserPrompt({ paragraph, targetLanguage }) {
   let nodesString = JSON.stringify(paragraph.nodes, null, 2);
 
+  console.log("nodesString", nodesString);
+
   return USER_PROMPT_TEMPLATE.replace("{paragraph}", paragraph.paragraph)
     .replace("{nodes}", nodesString)
     .replace("{targetLanguage}", targetLanguage);
