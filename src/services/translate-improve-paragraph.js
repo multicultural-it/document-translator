@@ -90,6 +90,10 @@ async function translateImproveParagraph({
 
   const systemPrompt = generateSystemPrompt({ sourceLanguage, targetLanguage });
 
+  // log prompts
+  console.log("userPrompt", userPrompt);
+  console.log("systemPrompt", systemPrompt);
+
   let result;
   let parsedResult;
 

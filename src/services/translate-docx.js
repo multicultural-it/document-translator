@@ -172,6 +172,10 @@ function replaceOriginalParagraphsNodesWithTranslated({
 }
 
 async function translateDocx({ docxContent, sourceLanguage, targetLanguage }) {
+  console.log("sourceLanguage: ", sourceLanguage);
+  console.log("targetLanguage: ", targetLanguage);
+  console.log("##################################################");
+
   const documentObj = await getDocumentObjectFromDocxContent(docxContent);
 
   const paragraphs = findParagraphNodes(documentObj["w:document"]["w:body"][0]);
@@ -187,7 +191,7 @@ async function translateDocx({ docxContent, sourceLanguage, targetLanguage }) {
     }))
     .filter(paragraph => paragraph.paragraph.length > 0);
 
-  async function processBlocks({ blocks, fn, sourceLanguage, targetLanguage }) {
+  async function processBlocks({ blocks, fn }) {
     let results = [];
     for (let block of blocks) {
       let translatedBlock = await Promise.all(
@@ -214,8 +218,6 @@ async function translateDocx({ docxContent, sourceLanguage, targetLanguage }) {
   const improvedParagraphs = await processBlocks({
     blocks,
     fn: translateImproveParagraph,
-    sourceLanguage,
-    targetLanguage,
   });
 
   replaceOriginalParagraphsNodesWithTranslated({
