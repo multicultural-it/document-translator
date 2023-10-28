@@ -172,13 +172,10 @@ async function translateDocx({
             paragraph,
             sourceLanguage,
             targetLanguage,
+            progressCallback,
           })
         )
       );
-
-      console.log("antes de progressCallback");
-      await progressCallback({ block, translatedBlock });
-      console.log("despues de progressCallback");
 
       results.push(...translatedBlock);
     }

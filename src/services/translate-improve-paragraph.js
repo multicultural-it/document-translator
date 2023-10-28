@@ -83,6 +83,7 @@ async function translateImproveParagraph({
   paragraph,
   sourceLanguage,
   targetLanguage,
+  progressCallback,
 }) {
   const userPrompt = generateUserPrompt({
     paragraph,
@@ -107,6 +108,10 @@ async function translateImproveParagraph({
 
     try {
       parsedResult = JSON.parse(result);
+
+      // termina la traduccion del parrafo. se suma un progreso. para esto se usa una funcion callback que viene desde monorepo
+      await progressCallback({ result });
+
       break;
     } catch (jsonError) {
       console.log("Error al parsear JSON. Reintentando...");
