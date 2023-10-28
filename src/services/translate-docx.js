@@ -173,6 +173,7 @@ async function translateDocx({
             sourceLanguage,
             targetLanguage,
             progressCallback,
+            paragraphCount: blocks.length,
           })
         )
       );
@@ -208,49 +209,16 @@ async function translateDocx({
 
 async function translateDocxLocal(inputPath, outputPath) {
   const docxContent = await getDocxContent(inputPath);
-  // const translatedDocxContent = await translateDocx(docxContent);
+
   const translatedDocxContent = await translateDocx({
     docxContent,
     sourceLanguage: "Detect language",
     targetLanguage: "Chinese (Simplified)",
+    progressCallback: progress => {
+      console.log("calcular progress aqui");
+    },
   });
   saveTranslatedDocxContent(outputPath, translatedDocxContent);
 }
 
 export { translateDocx, translateDocxLocal, getZipContent };
-
-// const translatedParagraphs = await processBlocks(blocks, translateParagraph);
-
-// const translatedParagraphsWithOriginal = translatedParagraphs.map(
-//   (translatedParagraph, paragraphIndex) => {
-//     const originalParagraph = jsonParagraphs[paragraphIndex];
-
-//     return {
-//       ...translatedParagraph,
-//       nodes: translatedParagraph.nodes.map(translatedNode => {
-//         const originalNode = originalParagraph.nodes.find(node => {
-//           console.log("original index: ", node.index);
-//           console.log("translated index: ", translatedNode.index);
-
-//           const translatedIndex = translatedNode.index ?? 1;
-
-//           return node.index === translatedIndex;
-//         });
-
-//         console.log("originalNode: ", originalNode);
-//         console.log("translatedNode: ", translatedNode);
-
-//         return {
-//           ...translatedNode,
-//           original: originalNode.originalText,
-//           translation: translatedNode.translation,
-//         };
-//       }),
-//     };
-//   }
-// );
-
-// const improvedParagraphs = await processBlocks(
-//   chunkArray(translatedParagraphsWithOriginal, CHUNK_SIZE),
-//   improveParagraph
-// );

@@ -84,6 +84,7 @@ async function translateImproveParagraph({
   sourceLanguage,
   targetLanguage,
   progressCallback,
+  paragraphCount,
 }) {
   const userPrompt = generateUserPrompt({
     paragraph,
@@ -110,7 +111,7 @@ async function translateImproveParagraph({
       parsedResult = JSON.parse(result);
 
       // termina la traduccion del parrafo. se suma un progreso. para esto se usa una funcion callback que viene desde monorepo
-      await progressCallback({ result });
+      await progressCallback({ result, paragraphCount });
 
       break;
     } catch (jsonError) {
@@ -144,10 +145,10 @@ async function handleRetries({ userPrompt, systemPrompt }) {
 
       return translatedParagraph;
     } catch (error) {
-      // console.error("HANDLE RETRIES ERROR: ", error);
-      // console.log("userPrompt", userPrompt);
-      // console.log("systemPrompt", systemPrompt);
-      // console.error("FIN HANDLE RETRIES ERROR: ", error);
+      console.error("HANDLE RETRIES ERROR: ", error);
+      console.log("userPrompt", userPrompt);
+      console.log("systemPrompt", systemPrompt);
+      console.error("FIN HANDLE RETRIES ERROR: ", error);
       if (retryCount === RETRY_LIMIT - 1) {
         // Si es el último intento
         return { error }; // Devuelve el error
