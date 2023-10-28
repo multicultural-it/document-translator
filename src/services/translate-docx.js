@@ -171,7 +171,12 @@ function replaceOriginalParagraphsNodesWithTranslated({
   });
 }
 
-async function translateDocx({ docxContent, sourceLanguage, targetLanguage }) {
+async function translateDocx({
+  docxContent,
+  sourceLanguage,
+  targetLanguage,
+  progressCallback,
+}) {
   console.log("sourceLanguage: ", sourceLanguage);
   console.log("targetLanguage: ", targetLanguage);
   console.log("##################################################");
@@ -191,22 +196,21 @@ async function translateDocx({ docxContent, sourceLanguage, targetLanguage }) {
     }))
     .filter(paragraph => paragraph.paragraph.length > 0);
 
-  async function processBlocks({ blocks, fn }) {
+  async function processBlocks({ blocks, fn, progressCallback }) {
     let results = [];
     for (let block of blocks) {
       let translatedBlock = await Promise.all(
         block.map(paragraph =>
           fn({
             paragraph,
-            // sourceLanguage: "English",
-            // targetLanguage: "Spanish (Argentina)",
-            // targetLanguage: "French (France)",
-            // targetLanguage: "Arabic (Egypt)",
             sourceLanguage,
             targetLanguage,
           })
         )
       );
+
+      await progressCallback({ block, translatedBlock });
+
       results.push(...translatedBlock);
     }
     return results;
@@ -218,6 +222,7 @@ async function translateDocx({ docxContent, sourceLanguage, targetLanguage }) {
   const improvedParagraphs = await processBlocks({
     blocks,
     fn: translateImproveParagraph,
+    progressCallback,
   });
 
   replaceOriginalParagraphsNodesWithTranslated({
