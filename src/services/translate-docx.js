@@ -176,7 +176,9 @@ async function translateDocx({
         )
       );
 
+      console.log("antes de progressCallback");
       await progressCallback({ block, translatedBlock });
+      console.log("despues de progressCallback");
 
       results.push(...translatedBlock);
     }
@@ -191,6 +193,8 @@ async function translateDocx({
     fn: translateImproveParagraph,
     progressCallback,
   });
+
+  console.log("IMPROVED PARAGRAPHS: ", improvedParagraphs);
 
   replaceOriginalParagraphsNodesWithTranslated({
     jsonParagraphs,
