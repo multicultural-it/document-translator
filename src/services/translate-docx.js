@@ -7,8 +7,7 @@ import { translateImproveParagraph } from "./translate-improve-paragraph.js";
 
 async function getDocxContent(inputPath) {
   const content = fs.readFileSync(inputPath);
-  console.log("content: ", content);
-  console.log("type of content: ", typeof content);
+
   const zip = new JSZip();
   await zip.loadAsync(content);
   return zip;
@@ -39,7 +38,6 @@ async function getDocumentObjectFromDocxContent(zipContent) {
 }
 
 async function buildTranslatedDocxContent(documentObj, zipContent) {
-  console.log("CREANDO ARCHIVO: ");
   const translatedDocumentXml = new xml2js.Builder().buildObject(documentObj);
   return zipContent
     .file("word/document.xml", translatedDocumentXml)
@@ -109,20 +107,15 @@ function replaceOriginalParagraphsNodesWithTranslated({
       originalNodes.forEach((originalNode, auxOriginalIndex) => {
         const originalIndex = auxOriginalIndex + 1;
 
-        console.log(
-          `Procesando nodo original con índice ${originalIndex}:`,
-          originalNode
-        );
-
         const translatedNode = translatedParagraph.nodes.find(
           translatedNode => {
-            console.log(
-              "translated node: ",
-              JSON.stringify(translatedNode, null, 2)
-            );
+            // console.log(
+            //   "translated node: ",
+            //   JSON.stringify(translatedNode, null, 2)
+            // );
 
-            console.log("original index: ", originalIndex);
-            console.log("translated index: ", translatedNode.index);
+            // console.log("original index: ", originalIndex);
+            // console.log("translated index: ", translatedNode.index);
 
             const translatedIndex = translatedNode.index ?? 1;
             const isFound = translatedIndex === originalIndex;
@@ -132,33 +125,9 @@ function replaceOriginalParagraphsNodesWithTranslated({
         );
 
         if (translatedNode) {
-          console.log(
-            `Nodo traducido encontrado para índice ${originalIndex}:`,
-            translatedNode
-          );
-        } else {
-          console.log(
-            `No se encontró nodo traducido para índice ${originalIndex}`
-          );
-        }
-
-        if (translatedNode) {
           const clonedNode = JSON.parse(JSON.stringify(originalNode["w:t"][0]));
 
           clonedNode._ = translatedNode.translation;
-
-          console.log(
-            "originalNode wt 0: ",
-            JSON.stringify(originalNode["w:t"][0], null, 2)
-          );
-
-          console.log("clonedNode: ", JSON.stringify(clonedNode, null, 2));
-
-          console.log(
-            "type of originalNode['w:t'][0]: ",
-            typeof originalNode["w:t"][0]
-          );
-          console.log("type of clonedNode: ", typeof clonedNode);
 
           if (clonedNode && clonedNode._) {
             originalNode["w:t"][0] = clonedNode;
@@ -177,8 +146,6 @@ async function translateDocx({
   targetLanguage,
   progressCallback,
 }) {
-  console.log("sourceLanguage: ", sourceLanguage);
-  console.log("targetLanguage: ", targetLanguage);
   console.log("##################################################");
 
   const documentObj = await getDocumentObjectFromDocxContent(docxContent);
