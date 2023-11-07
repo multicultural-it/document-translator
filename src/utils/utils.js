@@ -1,3 +1,7 @@
+import fs from "fs";
+import JSZip from "jszip";
+import xml2js from "xml2js";
+
 export function cleanText(text) {
   let newText = text.replace(/<!"|"!>/g, "");
   newText = newText.replace(/Current Node:|Next Node:/g, "");
@@ -148,3 +152,124 @@ export const languageMap = {
     outExample: `Snapchatは、画像や動画を通じて自己表現をするプラットフォームです。`,
   },
 };
+
+export async function getDocxContent(inputPath) {
+  const content = fs.readFileSync(inputPath);
+
+  const zip = new JSZip();
+  await zip.loadAsync(content);
+  return zip;
+}
+
+// Blob to zip
+export async function getZipContent(blob) {
+  const content = await blob.arrayBuffer();
+  const zip = new JSZip();
+  await zip.loadAsync(content);
+  return zip;
+}
+
+export function chunkrray(myArray, chunk_size) {
+  const cloneMyArray = [...myArray];
+  let results = [];
+  while (cloneMyArray.length) {
+    results.push(cloneMyArray.splice(0, chunk_size));
+  }
+  return results;
+}
+
+export async function getDocumentObjectFromDocxContent(zipContent) {
+  const documentXml = await zipContent
+    .file("word/document.xml")
+    .async("string");
+  return new xml2js.Parser().parseStringPromise(documentXml);
+}
+
+export async function buildTranslatedDocxContent(documentObj, zipContent) {
+  const translatedDocumentXml = new xml2js.Builder().buildObject(documentObj);
+  return zipContent
+    .file("word/document.xml", translatedDocumentXml)
+    .generateAsync({ type: "nodebuffer" });
+}
+
+export function saveTranslatedDocxContent(outputPath, translatedDocxContent) {
+  fs.writeFileSync(outputPath, translatedDocxContent);
+}
+
+export function getChunkFromNode(node) {
+  return node?._ || "";
+}
+
+////////////////////////////////////////////////////////////
+
+// function replaceOriginalParagraphsNodesWithTranslated({
+//   jsonParagraphs,
+//   improvedParagraphs,
+// }) {
+//   jsonParagraphs.forEach((originalParagraph, originalParagraphIndex) => {
+//     const translatedParagraph = improvedParagraphs.find(
+//       (_, translatedIndex) => translatedIndex === originalParagraphIndex
+//     );
+
+//     if (translatedParagraph) {
+//       const originalNodes = findTextNodes(originalParagraph.originalNode);
+
+//       originalNodes.forEach((originalNode, auxOriginalIndex) => {
+//         const originalIndex = auxOriginalIndex + 1;
+
+//         console.log(
+//           `Procesando nodo original con índice ${originalIndex}:`,
+//           originalNode
+//         );
+
+//         const translatedNode = translatedParagraph.nodes.find(
+//           translatedNode => {
+//             const translatedIndex = translatedNode.index ?? 1;
+//             const isFound = translatedIndex === originalIndex;
+
+//             return isFound;
+//           }
+//         );
+
+//         if (translatedNode) {
+//           console.log(
+//             `Nodo traducido encontrado para índice ${originalIndex}:`,
+//             translatedNode
+//           );
+//         } else {
+//           console.log(
+//             `No se encontró nodo traducido para índice ${originalIndex}`
+//           );
+//         }
+
+//         if (translatedNode) {
+//           if (originalNode["w:t"] && Array.isArray(originalNode["w:t"])) {
+//             const clonedNode = JSON.parse(
+//               JSON.stringify(originalNode["w:t"][0])
+//             );
+//             clonedNode._ = translatedNode.translation;
+
+//             if (clonedNode && clonedNode._) {
+//               originalNode["w:t"][0] = clonedNode;
+//             }
+//           }
+//           if (originalNode[0] && typeof originalNode[0] === "string") {
+//             originalNode[0] = translatedNode.translation;
+//           } else {
+//             const clonedNode = JSON.parse(JSON.stringify(originalNode[0]));
+//             console.log("clonedNode", clonedNode);
+//             console.log(
+//               "stringify originalNode[0]",
+//               JSON.stringify(originalNode[0])
+//             );
+//             clonedNode._ = translatedNode.translation;
+
+//             if (clonedNode && clonedNode._) {
+//               originalNode[0] = clonedNode;
+//             }
+//           }
+//         }
+//       });
+//     }
+//   });
+// }
