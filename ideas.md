@@ -1,5 +1,9 @@
 #####################################################################################################################
 
+- usar el codigo python pasandolo a js para convertir un docx en otro docx con la api de drive (que presupongo es la misma q google docs). de esta forma mi codigo deberia andar.
+
+#####################################################################################################################
+
 3. detect language hacer
 4. alerta al querer cerrar mientras traduce o mientras haya un archivo adjunto. ahi no permiter cerrar de golpe.
 

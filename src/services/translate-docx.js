@@ -57,11 +57,29 @@ function getChunkFromNode(node) {
 function findTextNodes(node) {
   function traverse(currentNode) {
     if (!currentNode || typeof currentNode !== "object") return [];
-    if (currentNode["w:t"]) return [currentNode];
+    if (currentNode["w:t"]) return [currentNode["w:t"]];
     return Object.values(currentNode).flatMap(child => traverse(child));
   }
-  const result = traverse(node);
+  return traverse(node);
+}
 
+function getTextFromParagraph(paragraphNode) {
+  const textNodes = findTextNodes(paragraphNode);
+  const result = textNodes
+    .map(node => {
+      if (Array.isArray(node)) {
+        if (node[0]._ !== undefined) {
+          return node[0]._;
+        }
+        return node[0];
+      } else {
+        if (node._ !== undefined) {
+          return node._;
+        }
+        return node;
+      }
+    })
+    .join("");
   return result;
 }
 
@@ -75,21 +93,16 @@ function findParagraphNodes(node) {
       paragraphs.push(currentNode);
       return;
     }
+    if (currentNode["w:p"]) {
+      paragraphs.push(currentNode["w:p"]);
+      return;
+    }
     Object.values(currentNode).forEach(child => traverse(child));
   }
 
   traverse(node);
 
   return paragraphs;
-}
-
-function getTextFromParagraph(paragraphNode) {
-  const textNodes = findTextNodes(paragraphNode);
-  const result = textNodes
-    .map(node => getChunkFromNode(node["w:t"][0]))
-    .join("");
-
-  return result;
 }
 
 function replaceOriginalParagraphsNodesWithTranslated({
@@ -107,16 +120,13 @@ function replaceOriginalParagraphsNodesWithTranslated({
       originalNodes.forEach((originalNode, auxOriginalIndex) => {
         const originalIndex = auxOriginalIndex + 1;
 
+        console.log(
+          `Procesando nodo original con índice ${originalIndex}:`,
+          originalNode
+        );
+
         const translatedNode = translatedParagraph.nodes.find(
           translatedNode => {
-            // console.log(
-            //   "translated node: ",
-            //   JSON.stringify(translatedNode, null, 2)
-            // );
-
-            // console.log("original index: ", originalIndex);
-            // console.log("translated index: ", translatedNode.index);
-
             const translatedIndex = translatedNode.index ?? 1;
             const isFound = translatedIndex === originalIndex;
 
@@ -125,19 +135,72 @@ function replaceOriginalParagraphsNodesWithTranslated({
         );
 
         if (translatedNode) {
-          const clonedNode = JSON.parse(JSON.stringify(originalNode["w:t"][0]));
+          console.log(
+            `Nodo traducido encontrado para índice ${originalIndex}:`,
+            translatedNode
+          );
+        } else {
+          console.log(
+            `No se encontró nodo traducido para índice ${originalIndex}`
+          );
+        }
 
-          clonedNode._ = translatedNode.translation;
+        if (translatedNode) {
+          if (originalNode["w:t"] && Array.isArray(originalNode["w:t"])) {
+            const clonedNode = JSON.parse(
+              JSON.stringify(originalNode["w:t"][0])
+            );
+            clonedNode._ = translatedNode.translation;
 
-          if (clonedNode && clonedNode._) {
-            originalNode["w:t"][0] = clonedNode;
+            if (clonedNode && clonedNode._) {
+              originalNode["w:t"][0] = clonedNode;
+            }
+          }
+          if (originalNode[0] && typeof originalNode[0] === "string") {
+            originalNode[0] = translatedNode.translation;
           } else {
-            console.log("clonedNode no tiene texto o es nulo");
+            const clonedNode = JSON.parse(JSON.stringify(originalNode[0]));
+            console.log("clonedNode", clonedNode);
+            console.log(
+              "stringify originalNode[0]",
+              JSON.stringify(originalNode[0])
+            );
+            clonedNode._ = translatedNode.translation;
+
+            if (clonedNode && clonedNode._) {
+              originalNode[0] = clonedNode;
+            }
           }
         }
       });
     }
   });
+}
+
+async function processBlocks({
+  blocks,
+  fn,
+  progressCallback,
+  sourceLanguage,
+  targetLanguage,
+}) {
+  let results = [];
+  for (let block of blocks) {
+    let translatedBlock = await Promise.all(
+      block.map(paragraph =>
+        fn({
+          paragraph,
+          sourceLanguage,
+          targetLanguage,
+          progressCallback,
+          paragraphCount: blocks.length,
+        })
+      )
+    );
+
+    results.push(...translatedBlock);
+  }
+  return results;
 }
 
 async function translateDocx({
@@ -152,36 +215,40 @@ async function translateDocx({
 
   const paragraphs = findParagraphNodes(documentObj["w:document"]["w:body"][0]);
 
+  // console.log("PARAGRAPHS: ", JSON.stringify(paragraphs, null, 2));
+  // console.log("PARAGRAPHS LENGTH: ", paragraphs.length);
+
   const jsonParagraphs = paragraphs
     .map(node => ({
       originalNode: node,
       paragraph: getTextFromParagraph(node),
-      nodes: findTextNodes(node).map((node, nodeIndex) => ({
-        index: nodeIndex + 1,
-        originalText: node["w:t"][0]._,
-      })),
+      nodes: findTextNodes(node).map((node, nodeIndex) => {
+        let originalText;
+
+        if (Array.isArray(node)) {
+          if (node[0]._ !== undefined) {
+            originalText = node[0]._;
+          } else {
+            originalText = node[0];
+          }
+        } else {
+          if (node._ !== undefined) {
+            originalText = node._;
+          } else {
+            originalText = node;
+          }
+        }
+
+        return {
+          index: nodeIndex + 1,
+          originalText: originalText,
+        };
+      }),
     }))
     .filter(paragraph => paragraph.paragraph.length > 0);
 
-  async function processBlocks({ blocks, fn, progressCallback }) {
-    let results = [];
-    for (let block of blocks) {
-      let translatedBlock = await Promise.all(
-        block.map(paragraph =>
-          fn({
-            paragraph,
-            sourceLanguage,
-            targetLanguage,
-            progressCallback,
-            paragraphCount: blocks.length,
-          })
-        )
-      );
-
-      results.push(...translatedBlock);
-    }
-    return results;
-  }
+  // console.log("JSON PARAGRAPHS: ", jsonParagraphs);
+  // console.log("JSON PARAGRAPHS LENGTH: ", jsonParagraphs.length);
 
   const CHUNK_SIZE = 8;
   const blocks = chunkArray(jsonParagraphs, CHUNK_SIZE);
@@ -190,12 +257,19 @@ async function translateDocx({
     blocks,
     fn: translateImproveParagraph,
     progressCallback,
+    sourceLanguage,
+    targetLanguage,
   });
 
-  console.log("IMPROVED PARAGRAPHS: ", improvedParagraphs);
+  // console.log("IMPROVED PARAGRAPHS: ", improvedParagraphs);
+  console.log(
+    "IMPROVED PARAGRAPHS: ",
+    JSON.stringify(improvedParagraphs, null, 2)
+  );
 
   replaceOriginalParagraphsNodesWithTranslated({
     jsonParagraphs,
+    // improvedParagraphs: null,
     improvedParagraphs,
   });
 
@@ -212,8 +286,8 @@ async function translateDocxLocal(inputPath, outputPath) {
 
   const translatedDocxContent = await translateDocx({
     docxContent,
-    sourceLanguage: "Detect language",
-    targetLanguage: "Chinese (Simplified)",
+    sourceLanguage: "English",
+    targetLanguage: "Spanish (Argentina)",
     progressCallback: progress => {
       console.log("calcular progress aqui");
     },
@@ -222,3 +296,29 @@ async function translateDocxLocal(inputPath, outputPath) {
 }
 
 export { translateDocx, translateDocxLocal, getZipContent };
+
+// if (translatedNode) {
+//   let clonedNode;
+
+//   if (Array.isArray(originalNode["w:t"])) {
+//     clonedNode = JSON.parse(JSON.stringify(originalNode["w:t"][0]));
+//     if (clonedNode._ !== undefined) {
+//       clonedNode._ = translatedNode.translation;
+//     } else {
+//       clonedNode = { _: translatedNode.translation };
+//     }
+//     originalNode["w:t"][0] = clonedNode;
+//   } else {
+//     clonedNode = JSON.parse(JSON.stringify(originalNode["w:t"]));
+//     if (clonedNode._ !== undefined) {
+//       clonedNode._ = translatedNode.translation;
+//     } else {
+//       clonedNode = { _: translatedNode.translation };
+//     }
+//     originalNode["w:t"] = clonedNode;
+//   }
+
+//   if (!clonedNode || !clonedNode._) {
+//     console.log("clonedNode no tiene texto o es nulo");
+//   }
+// }
