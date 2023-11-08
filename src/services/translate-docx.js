@@ -8,7 +8,7 @@ import {
 } from "../utils/utils.js";
 import { translateImproveParagraph } from "./translate-improve-paragraph.js";
 
-import clipboardy from "clipboardy";
+// import clipboardy from "clipboardy";
 
 function findTextNodes(node) {
   function traverse(currentNode) {
