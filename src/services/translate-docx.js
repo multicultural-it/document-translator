@@ -3,6 +3,7 @@ import {
   getChunkFromNode,
   buildTranslatedDocxContent,
   chunkArray,
+  updateTextNode,
 } from "../utils/utils.js";
 import { translateImproveParagraph } from "./translate-improve-paragraph.js";
 
@@ -45,42 +46,24 @@ function getTextFromParagraph(paragraphNode) {
 }
 
 function replaceOriginalParagraphsNodesWithTranslated({
-  jsonParagraphs,
-  improvedParagraphs,
+  originalParagraphs,
+  translatedParagraphs,
 }) {
-  jsonParagraphs.forEach((originalParagraph, originalParagraphIndex) => {
-    const translatedParagraph = improvedParagraphs.find(
-      (_, translatedIndex) => translatedIndex === originalParagraphIndex
-    );
-
-    if (translatedParagraph) {
-      const originalNodes = findTextNodes(originalParagraph.originalNode);
-
-      originalNodes.forEach((originalNode, auxOriginalIndex) => {
-        const originalIndex = auxOriginalIndex + 1;
-
-        const translatedNode = translatedParagraph.nodes.find(
-          translatedNode => {
-            const translatedIndex = translatedNode.index ?? 1;
-            const isFound = translatedIndex === originalIndex;
-
-            return isFound;
-          }
-        );
-
-        if (translatedNode) {
-          const clonedNode = JSON.parse(JSON.stringify(originalNode["w:t"][0]));
-
-          clonedNode._ = translatedNode.translation;
-
-          if (clonedNode && clonedNode._) {
-            originalNode["w:t"][0] = clonedNode;
-          } else {
-            console.log("clonedNode no tiene texto o es nulo");
-          }
-        }
-      });
+  originalParagraphs.forEach((paragraph, index) => {
+    const translation = translatedParagraphs[index];
+    if (!translation) {
+      return;
     }
+
+    const textNodes = findTextNodes(paragraph.originalNode);
+    textNodes.forEach((node, nodeIndex) => {
+      const translationNode = translation.nodes.find(
+        n => n.index === nodeIndex + 1
+      );
+      if (translationNode) {
+        updateTextNode(node, translationNode.translation);
+      }
+    });
   });
 }
 
@@ -129,8 +112,8 @@ async function translateDocx({
   }
 
   replaceOriginalParagraphsNodesWithTranslated({
-    jsonParagraphs,
-    improvedParagraphs,
+    originalParagraphs: jsonParagraphs,
+    translatedParagraphs: improvedParagraphs,
   });
 
   const translatedDocxContent = await buildTranslatedDocxContent(

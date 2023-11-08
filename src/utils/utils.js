@@ -217,3 +217,12 @@ export async function translateDocxLocal(inputPath, outputPath) {
   });
   saveTranslatedDocxContent(outputPath, translatedDocxContent);
 }
+
+export function updateTextNode(node, translation) {
+  const textContent = node["w:t"][0];
+  if (textContent) {
+    textContent._ = translation;
+  } else {
+    console.log("Text content is missing or null");
+  }
+}
