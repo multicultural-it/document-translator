@@ -50,20 +50,17 @@ function replaceOriginalParagraphsNodesWithTranslated({
   translatedParagraphs,
 }) {
   originalParagraphs.forEach((paragraph, index) => {
-    const translation = translatedParagraphs[index];
-    if (!translation) {
-      return;
+    const translatedTextNodes = translatedParagraphs[index]?.nodes;
+    if (translatedTextNodes) {
+      findTextNodes(paragraph.originalNode).forEach((node, nodeIndex) => {
+        const translation = translatedTextNodes.find(
+          n => n.index === nodeIndex + 1
+        )?.translation;
+        if (translation) {
+          updateTextNode(node, translation);
+        }
+      });
     }
-
-    const textNodes = findTextNodes(paragraph.originalNode);
-    textNodes.forEach((node, nodeIndex) => {
-      const translationNode = translation.nodes.find(
-        n => n.index === nodeIndex + 1
-      );
-      if (translationNode) {
-        updateTextNode(node, translationNode.translation);
-      }
-    });
   });
 }
 
