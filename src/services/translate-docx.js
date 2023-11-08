@@ -7,6 +7,8 @@ import {
 } from "../utils/utils.js";
 import { translateImproveParagraph } from "./translate-improve-paragraph.js";
 
+import clipboardy from "clipboardy";
+
 function findTextNodes(node) {
   function traverse(currentNode) {
     if (!currentNode || typeof currentNode !== "object") return [];
@@ -24,7 +26,8 @@ function findParagraphNodes(node) {
   function traverse(currentNode) {
     if (!currentNode || typeof currentNode !== "object") return;
 
-    if (currentNode["w:pPr"]) {
+    // if (currentNode["w:pPr"] || currentNode["w:p"]) {
+    if (currentNode["w:r"]) {
       paragraphs.push(currentNode);
       return;
     }
@@ -70,22 +73,19 @@ async function translateDocx({
   targetLanguage,
   progressCallback,
 }) {
-  console.log("##################################################");
-
   const documentObj = await getDocumentObjectFromDocxContent(docxContent);
-
   const paragraphs = findParagraphNodes(documentObj["w:document"]["w:body"][0]);
 
-  const jsonParagraphs = paragraphs
-    .map(node => ({
-      originalNode: node,
-      paragraph: getTextFromParagraph(node),
-      nodes: findTextNodes(node).map((node, nodeIndex) => ({
-        index: nodeIndex + 1,
-        originalText: node["w:t"][0]._,
-      })),
-    }))
-    .filter(paragraph => paragraph.paragraph.length > 0);
+  const jsonParagraphs = paragraphs.map(node => ({
+    originalNode: node,
+    paragraph: getTextFromParagraph(node),
+    nodes: findTextNodes(node).map((node, nodeIndex) => ({
+      index: nodeIndex + 1,
+
+      originalText: node["w:t"][0]?._ || node["w:t"][0],
+    })),
+  }));
+  // .filter(paragraph => paragraph.paragraph.length > 0);
 
   const CHUNK_SIZE = 8;
   const blocks = chunkArray(jsonParagraphs, CHUNK_SIZE);
@@ -107,6 +107,24 @@ async function translateDocx({
 
     improvedParagraphs.push(...translatedBlock);
   }
+
+  console.log(
+    "improvedParagraphs deep",
+    JSON.stringify(improvedParagraphs, null, 2)
+  );
+
+  // clipboardy.writeSync(JSON.stringify(improvedParagraphs, null, 2));
+  // copy jsonParagraphs AND improvedParagraphs to clipboard
+  // clipboardy.writeSync(
+  //   JSON.stringify(
+  //     {
+  //       jsonParagraphs,
+  //       improvedParagraphs,
+  //     },
+  //     null,
+  //     2
+  //   )
+  // );
 
   replaceOriginalParagraphsNodesWithTranslated({
     originalParagraphs: jsonParagraphs,

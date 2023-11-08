@@ -201,7 +201,8 @@ export function saveTranslatedDocxContent(outputPath, translatedDocxContent) {
 }
 
 export function getChunkFromNode(node) {
-  return node?._ || "";
+  // return node?._ || "";
+  return node?._ || node;
 }
 
 export async function translateDocxLocal(inputPath, outputPath) {
@@ -210,7 +211,8 @@ export async function translateDocxLocal(inputPath, outputPath) {
   const translatedDocxContent = await translateDocx({
     docxContent,
     sourceLanguage: "Detect language",
-    targetLanguage: "Chinese (Simplified)",
+    // targetLanguage: "Chinese (Simplified)",
+    targetLanguage: "Spanish (Argentina)",
     progressCallback: progress => {
       console.log("calcular progress aqui");
     },
@@ -220,9 +222,41 @@ export async function translateDocxLocal(inputPath, outputPath) {
 
 export function updateTextNode(node, translation) {
   const textContent = node["w:t"][0];
-  if (textContent) {
+  if (textContent && textContent._) {
     textContent._ = translation;
+  } else if (textContent && typeof textContent === "string") {
+    node["w:t"][0] = translation;
   } else {
     console.log("Text content is missing or null");
   }
 }
+
+// export function updateTextNode(node, translation) {
+//   const textContent = node["w:t"][0];
+//   if (textContent) {
+//     textContent._ = translation;
+//   } else {
+//     console.log("Text content is missing or null");
+//   }
+// }
+
+// EASTE SI ANDA
+// "w:t": [
+//   {
+//     "_": "Please visit ",
+//     "$": {
+//       "xml:space": "preserve"
+//     }
+//   }
+// ]
+// ESTE NO ANDA:
+// "w:t": [
+//   "Please choose the button: “"
+// ]
+
+// // clone node
+// const cloneNode = JSON.parse(JSON.stringify(node));
+// // update node
+// cloneNode["w:t"][0] = translation;
+// // replace node
+// node = cloneNode;
