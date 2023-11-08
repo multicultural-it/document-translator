@@ -4,6 +4,7 @@ import {
   buildTranslatedDocxContent,
   chunkArray,
   updateTextNode,
+  getZipContent,
 } from "../utils/utils.js";
 import { translateImproveParagraph } from "./translate-improve-paragraph.js";
 
@@ -139,4 +140,4 @@ async function translateDocx({
   return translatedDocxContent;
 }
 
-export { translateDocx };
+export { translateDocx, getZipContent };
