@@ -21,7 +21,8 @@ export default class GptService {
     };
 
     let body = {
-      model: "gpt-4",
+      // model: "gpt-4",
+      model: "gpt-4-1106-preview",
       messages: messages,
     };
 

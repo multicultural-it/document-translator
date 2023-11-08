@@ -1,3 +1,11 @@
+import { translateDocx } from "../services/translate-docx.js";
+// import fs
+import fs from "fs";
+// import JSZip
+import JSZip from "jszip";
+// import xml2js
+import xml2js from "xml2js";
+
 export function cleanText(text) {
   let newText = text.replace(/<!"|"!>/g, "");
   newText = newText.replace(/Current Node:|Next Node:/g, "");
@@ -148,3 +156,64 @@ export const languageMap = {
     outExample: `Snapchatは、画像や動画を通じて自己表現をするプラットフォームです。`,
   },
 };
+
+async function getDocxContent(inputPath) {
+  const content = fs.readFileSync(inputPath);
+
+  const zip = new JSZip();
+  await zip.loadAsync(content);
+  return zip;
+}
+
+// Blob to zip
+export async function getZipContent(blob) {
+  const content = await blob.arrayBuffer();
+  const zip = new JSZip();
+  await zip.loadAsync(content);
+  return zip;
+}
+
+export function chunkArray(myArray, chunk_size) {
+  const cloneMyArray = [...myArray];
+  let results = [];
+  while (cloneMyArray.length) {
+    results.push(cloneMyArray.splice(0, chunk_size));
+  }
+  return results;
+}
+
+export async function getDocumentObjectFromDocxContent(zipContent) {
+  const documentXml = await zipContent
+    .file("word/document.xml")
+    .async("string");
+  return new xml2js.Parser().parseStringPromise(documentXml);
+}
+
+export async function buildTranslatedDocxContent(documentObj, zipContent) {
+  const translatedDocumentXml = new xml2js.Builder().buildObject(documentObj);
+  return zipContent
+    .file("word/document.xml", translatedDocumentXml)
+    .generateAsync({ type: "nodebuffer" });
+}
+
+export function saveTranslatedDocxContent(outputPath, translatedDocxContent) {
+  fs.writeFileSync(outputPath, translatedDocxContent);
+}
+
+export function getChunkFromNode(node) {
+  return node?._ || "";
+}
+
+export async function translateDocxLocal(inputPath, outputPath) {
+  const docxContent = await getDocxContent(inputPath);
+
+  const translatedDocxContent = await translateDocx({
+    docxContent,
+    sourceLanguage: "Detect language",
+    targetLanguage: "Chinese (Simplified)",
+    progressCallback: progress => {
+      console.log("calcular progress aqui");
+    },
+  });
+  saveTranslatedDocxContent(outputPath, translatedDocxContent);
+}
