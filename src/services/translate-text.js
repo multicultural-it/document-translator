@@ -34,9 +34,9 @@ function generateSystemPrompt({ targetLanguage }) {
 async function handleRetries({ userPrompt, systemPrompt, chunk }) {
   for (let retryCount = 0; retryCount < RETRY_LIMIT; retryCount++) {
     try {
-      // const gptService = new GptService(process.env.OPENAI_API_KEY);
-      const gptService = new GptService(process.env.GG_OPENAI__API_KEY);
-
+      const ggOpenaiApiKeyJson = process.env.GG_OPENAI__API_KEY_JSON;
+      const ggOpenaiApiKey = JSON.parse(ggOpenaiApiKeyJson).key;
+      const gptService = new GptService(ggOpenaiApiKey);
       const dirtyTranslatedChunk = await gptService.getApiResponse([
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
