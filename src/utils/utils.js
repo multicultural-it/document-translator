@@ -21,6 +21,7 @@ export function cleanJson(text) {
     }
   }
   showLog("Json limpiado.");
+  showLog(newText);
 
   return newText;
 }
