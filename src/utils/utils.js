@@ -6,7 +6,10 @@ import xml2js from "xml2js";
 export function cleanJson(text) {
   showLog("Limpiando el json...");
 
-  let newText = text.replace(/```json/g, "");
+  let newText;
+  newText = text.replace(/```json\n{\n/g, "{");
+  newText = text.replace(/```json\n{/g, "{");
+  newText = text.replace(/```json/g, "");
 
   // Verificar si el último carácter es diferente de }
   if (newText[newText.length - 1] !== "}") {
