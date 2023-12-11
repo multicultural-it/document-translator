@@ -1,3 +1,4 @@
+import { cleanJson } from "../utils/utils.js";
 import GptService from "./gpt-service.js";
 
 const RETRY_LIMIT = 3;
@@ -83,7 +84,9 @@ async function translateParagraph({ paragraph, targetLanguage }) {
     });
 
     try {
-      parsedResult = JSON.parse(result);
+      const cleanResult = cleanJson(result);
+      parsedResult = JSON.parse(cleanResult);
+
       break;
     } catch (jsonError) {
       console.log("Error al parsear JSON. Reintentando...");

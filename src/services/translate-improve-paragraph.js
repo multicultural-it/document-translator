@@ -1,3 +1,4 @@
+import { cleanJson } from "../utils/utils.js";
 import GptService from "./gpt-service.js";
 
 const RETRY_LIMIT = 3;
@@ -94,10 +95,6 @@ async function translateImproveParagraph({
 
   const systemPrompt = generateSystemPrompt({ sourceLanguage, targetLanguage });
 
-  // // log prompts
-  // console.log("userPrompt", userPrompt);
-  // console.log("systemPrompt", systemPrompt);
-
   let result;
   let parsedResult;
 
@@ -108,7 +105,8 @@ async function translateImproveParagraph({
     });
 
     try {
-      parsedResult = JSON.parse(result);
+      const cleanResult = cleanJson(result);
+      parsedResult = JSON.parse(cleanResult);
 
       // termina la traduccion del parrafo. se suma un progreso. para esto se usa una funcion callback que viene desde monorepo
       await progressCallback({ result, paragraphCount });
@@ -126,9 +124,6 @@ async function translateImproveParagraph({
       await new Promise(resolve => setTimeout(resolve, 60000));
     }
   }
-
-  // console.log("result", parsedResult);
-
   return parsedResult;
 }
 

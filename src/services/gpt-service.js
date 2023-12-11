@@ -7,6 +7,7 @@ export default class GptService {
     try {
       return await func(...args);
     } catch (error) {
+      console.log("ERROR: ", error);
       console.error(`Failed to ${func.name}:`, error);
       throw error;
     }
@@ -36,7 +37,9 @@ export default class GptService {
 
     const data = await response.json();
 
-    // console.log("data", data);
+    // console.log("RESP GPT: ", data);
+    // log very deep
+    console.log("RESP GPT: ", JSON.stringify(data, null, 2));
 
     if (data.choices && data.choices.length > 0) {
       return data.choices[0].message.content;

@@ -3,12 +3,43 @@ import fs from "fs";
 import JSZip from "jszip";
 import xml2js from "xml2js";
 
+export function cleanJson(text) {
+  showLog("Limpiando el json...");
+
+  let newText = text.replace(/```json/g, "");
+
+  // Verificar si el último carácter es diferente de }
+  if (newText[newText.length - 1] !== "}") {
+    // Encontrar la posición del último } en el texto
+    const lastCurlyBraceIndex = newText.lastIndexOf("}");
+    // Cortar el texto hasta esa posición
+    if (lastCurlyBraceIndex !== -1) {
+      newText = newText.substring(0, lastCurlyBraceIndex + 1);
+    }
+  }
+  showLog("Json limpiado.");
+
+  return newText;
+}
+
 export function cleanText(text) {
   showLog("Limpiando el texto del nodo...");
   let newText = text.replace(/<!"|"!>/g, "");
   newText = newText.replace(/Current Node:|Next Node:/g, "");
   newText = newText.replace(/Out:/g, "");
+
+  newText = newText.replace(/```json/g, "");
+  // Verificar si el último carácter es diferente de }
+  if (newText[newText.length - 1] !== "}") {
+    // Encontrar la posición del último } en el texto
+    const lastCurlyBraceIndex = newText.lastIndexOf("}");
+    // Cortar el texto hasta esa posición
+    if (lastCurlyBraceIndex !== -1) {
+      newText = newText.substring(0, lastCurlyBraceIndex + 1);
+    }
+  }
   showLog("Texto limpiado.");
+
   return text.replace(/<!"|"!>/g, "");
 }
 
@@ -102,7 +133,7 @@ export async function translateDocxLocal(inputPath, outputPath) {
     // targetLanguage: "Chinese (Simplified)",
     targetLanguage: "Spanish (Argentina)",
     progressCallback: progress => {
-      showLog("calcular progress aqui");
+      // showLog("Progress: ", progress);
     },
   });
   showLog("Traducción completada. Guardando el archivo traducido...");
@@ -124,9 +155,9 @@ export function updateTextNode(node, translation) {
   showLog("Nodo de texto actualizado.");
 }
 
-const showLog = message => {
+const showLog = (message, ...optionalParams) => {
   if (process.env.NODE_ENV === "development") {
-    console.log(message);
+    console.log(message, ...optionalParams);
   }
 };
 

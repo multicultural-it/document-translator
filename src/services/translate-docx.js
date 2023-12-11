@@ -82,19 +82,15 @@ async function translateDocx({
     paragraph: getTextFromParagraph(node),
     nodes: findTextNodes(node).map((node, nodeIndex) => ({
       index: nodeIndex + 1,
-
       originalText: node["w:t"][0]?._ || node["w:t"][0],
     })),
   }));
-  // .filter(paragraph => paragraph.paragraph.length > 0);
 
-  const CHUNK_SIZE = 8;
+  const CHUNK_SIZE = 12;
   const blocks = chunkArray(jsonParagraphs, CHUNK_SIZE);
 
-  let improvedParagraphs = [];
-
-  for (let block of blocks) {
-    let translatedBlock = await Promise.all(
+  const translatedBlocksPromises = blocks.map(block =>
+    Promise.all(
       block.map(paragraph =>
         translateImproveParagraph({
           paragraph,
@@ -104,28 +100,11 @@ async function translateDocx({
           paragraphCount: blocks.length,
         })
       )
-    );
-
-    improvedParagraphs.push(...translatedBlock);
-  }
-
-  console.log(
-    "improvedParagraphs deep",
-    JSON.stringify(improvedParagraphs, null, 2)
+    )
   );
 
-  // clipboardy.writeSync(JSON.stringify(improvedParagraphs, null, 2));
-  // copy jsonParagraphs AND improvedParagraphs to clipboard
-  // clipboardy.writeSync(
-  //   JSON.stringify(
-  //     {
-  //       jsonParagraphs,
-  //       improvedParagraphs,
-  //     },
-  //     null,
-  //     2
-  //   )
-  // );
+  const translatedBlocks = await Promise.all(translatedBlocksPromises);
+  const improvedParagraphs = translatedBlocks.flat();
 
   replaceOriginalParagraphsNodesWithTranslated({
     originalParagraphs: jsonParagraphs,
@@ -139,5 +118,60 @@ async function translateDocx({
 
   return translatedDocxContent;
 }
+
+// async function translateDocx({
+//   docxContent,
+//   sourceLanguage,
+//   targetLanguage,
+//   progressCallback,
+// }) {
+//   const documentObj = await getDocumentObjectFromDocxContent(docxContent);
+//   const paragraphs = findParagraphNodes(documentObj["w:document"]["w:body"][0]);
+
+//   const jsonParagraphs = paragraphs.map(node => ({
+//     originalNode: node,
+//     paragraph: getTextFromParagraph(node),
+//     nodes: findTextNodes(node).map((node, nodeIndex) => ({
+//       index: nodeIndex + 1,
+
+//       originalText: node["w:t"][0]?._ || node["w:t"][0],
+//     })),
+//   }));
+//   // .filter(paragraph => paragraph.paragraph.length > 0);
+
+//   // const CHUNK_SIZE = 8;
+//   const CHUNK_SIZE = 16;
+//   const blocks = chunkArray(jsonParagraphs, CHUNK_SIZE);
+
+//   let improvedParagraphs = [];
+
+//   for (let block of blocks) {
+//     let translatedBlock = await Promise.all(
+//       block.map(paragraph =>
+//         translateImproveParagraph({
+//           paragraph,
+//           sourceLanguage,
+//           targetLanguage,
+//           progressCallback,
+//           paragraphCount: blocks.length,
+//         })
+//       )
+//     );
+
+//     improvedParagraphs.push(...translatedBlock);
+//   }
+
+//   replaceOriginalParagraphsNodesWithTranslated({
+//     originalParagraphs: jsonParagraphs,
+//     translatedParagraphs: improvedParagraphs,
+//   });
+
+//   const translatedDocxContent = await buildTranslatedDocxContent(
+//     documentObj,
+//     docxContent
+//   );
+
+//   return translatedDocxContent;
+// }
 
 export { translateDocx, getZipContent };
