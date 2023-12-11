@@ -22,13 +22,10 @@ export default class GptService {
     };
 
     let body = {
-      // model: "gpt-4",
       model: "gpt-4-1106-preview",
+      response_format: { type: "json_object" },
       messages: messages,
     };
-
-    // console.log("messages", messages);
-
     const response = await this.withErrorHandling(fetch, url, {
       method: "POST",
       headers: headers,
