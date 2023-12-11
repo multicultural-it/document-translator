@@ -21,12 +21,12 @@ export default class GptService {
     };
 
     let body = {
-      model: "gpt-4",
-      // model: "gpt-4-1106-preview",
+      // model: "gpt-4",
+      model: "gpt-4-1106-preview",
       messages: messages,
     };
 
-    console.log("messages", messages);
+    // console.log("messages", messages);
 
     const response = await this.withErrorHandling(fetch, url, {
       method: "POST",
@@ -36,7 +36,7 @@ export default class GptService {
 
     const data = await response.json();
 
-    console.log("data", data);
+    // console.log("data", data);
 
     if (data.choices && data.choices.length > 0) {
       return data.choices[0].message.content;
