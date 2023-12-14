@@ -48,7 +48,7 @@ Output:
 Input: 
 {
     "paragraph": "{paragraph}",
-    "nodes": [{nodes}]
+    "nodes": {nodes}
 }
 Output:
 
@@ -121,9 +121,9 @@ async function translateImproveParagraph({
       await progressCallback({ result, paragraphCount });
 
       // log
-      console.log("########");
-      console.log("result", result);
-      console.log("paragraphCount", paragraphCount);
+      // console.log("########");
+      // console.log("result", result);
+      // console.log("paragraphCount", paragraphCount);
 
       break;
     } catch (jsonError) {

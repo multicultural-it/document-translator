@@ -85,22 +85,25 @@ async function translateDocx({
       originalText: node["w:t"][0]?._ || node["w:t"][0],
     })),
   }));
-  // .filter(paragraph => paragraph.paragraph.length > 0);
 
   const CHUNK_SIZE = 12;
   const blocks = chunkArray(jsonParagraphs, CHUNK_SIZE);
 
   const translatedBlocksPromises = blocks.map(block =>
     Promise.all(
-      block.map(paragraph =>
-        translateImproveParagraph({
+      block.map(paragraph => {
+        console.log("#####");
+        console.log("CURRENT PARAGRAPH: ", paragraph.paragraph);
+        console.log("#####");
+
+        return translateImproveParagraph({
           paragraph,
           sourceLanguage,
           targetLanguage,
           progressCallback,
           paragraphCount: blocks.length,
-        })
-      )
+        });
+      })
     )
   );
 

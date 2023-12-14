@@ -135,7 +135,8 @@ export async function translateDocxLocal(inputPath, outputPath) {
     docxContent,
     sourceLanguage: "Detect language",
     // targetLanguage: "Chinese (Simplified)",
-    targetLanguage: "Spanish (Argentina)",
+    // targetLanguage: "Spanish (Argentina)",
+    targetLanguage: "Portuguese (Brazil)",
     progressCallback: progress => {
       // showLog("Progress: ", progress);
     },
