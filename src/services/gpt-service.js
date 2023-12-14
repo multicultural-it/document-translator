@@ -36,12 +36,12 @@ export default class GptService {
 
     // console.log("RESP GPT: ", data);
     // log very deep
-    console.log("RESP GPT: ", JSON.stringify(data, null, 2));
+    // console.log("RESP GPT: ", JSON.stringify(data, null, 2));
 
     if (data.choices && data.choices.length > 0) {
       return data.choices[0].message.content;
     } else {
-      console.log("data", data);
+      // console.log("data", data);
       return data;
       // return "error";
     }

@@ -85,6 +85,7 @@ async function translateDocx({
       originalText: node["w:t"][0]?._ || node["w:t"][0],
     })),
   }));
+  // .filter(paragraph => paragraph.paragraph.length > 0);
 
   const CHUNK_SIZE = 12;
   const blocks = chunkArray(jsonParagraphs, CHUNK_SIZE);

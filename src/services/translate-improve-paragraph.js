@@ -98,6 +98,15 @@ async function translateImproveParagraph({
   let result;
   let parsedResult;
 
+  // if paragraph lenght is 0, return same paragraph
+  if (paragraph.paragraph.length === 0) {
+    // log llamativo
+    console.log("##############");
+    console.log("PARAGRAPH LENGTH IS 0");
+    console.log("##############");
+    return paragraph;
+  }
+
   while (true) {
     result = await handleRetries({
       userPrompt,
@@ -110,6 +119,11 @@ async function translateImproveParagraph({
 
       // termina la traduccion del parrafo. se suma un progreso. para esto se usa una funcion callback que viene desde monorepo
       await progressCallback({ result, paragraphCount });
+
+      // log
+      console.log("########");
+      console.log("result", result);
+      console.log("paragraphCount", paragraphCount);
 
       break;
     } catch (jsonError) {
