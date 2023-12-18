@@ -89,23 +89,25 @@ async function translateDocx({
   const CHUNK_SIZE = 12;
   const blocks = chunkArray(jsonParagraphs, CHUNK_SIZE);
 
-  const translatedBlocksPromises = blocks.map(block =>
-    Promise.all(
+  let progress = 0;
+
+  const translatedBlocksPromises = blocks.map(block => {
+    return Promise.all(
       block.map(paragraph => {
-        console.log("#####");
-        console.log("CURRENT PARAGRAPH: ", paragraph.paragraph);
-        console.log("#####");
+        progress += 1;
 
         return translateImproveParagraph({
           paragraph,
           sourceLanguage,
           targetLanguage,
           progressCallback,
-          paragraphCount: blocks.length,
+          // paragraphCount: blocks.length,
+          totalNodes: jsonParagraphs.length,
+          progress,
         });
       })
-    )
-  );
+    );
+  });
 
   const translatedBlocks = await Promise.all(translatedBlocksPromises);
   const improvedParagraphs = translatedBlocks.flat();

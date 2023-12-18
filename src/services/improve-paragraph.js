@@ -92,7 +92,8 @@ async function improveParagraph({ paragraph, targetLanguage }) {
       parsedResult = JSON.parse(cleanResult);
       break;
     } catch (jsonError) {
-      console.log("Error al parsear JSON. Reintentando...");
+      console.log("[improve paragraph] Error al parsear JSON. Reintentando...");
+      console.log("jsonError", jsonError);
     }
 
     // En caso de error de límite de tasa
@@ -104,7 +105,7 @@ async function improveParagraph({ paragraph, targetLanguage }) {
     }
   }
 
-  console.log("result", parsedResult);
+  // console.log("result", parsedResult);
 
   return parsedResult;
 }
@@ -123,9 +124,9 @@ async function handleRetries({ userPrompt, systemPrompt }) {
 
       return translatedParagraph;
     } catch (error) {
-      console.error("HANDLE RETRIES ERROR: ", error);
-      console.log("userPrompt", userPrompt);
-      console.log("systemPrompt", systemPrompt);
+      // console.error("HANDLE RETRIES ERROR: ");
+      // console.log("userPrompt", userPrompt);
+      // console.log("systemPrompt", systemPrompt);
       console.error("FIN HANDLE RETRIES ERROR: ", error);
       if (retryCount === RETRY_LIMIT - 1) {
         // Si es el último intento

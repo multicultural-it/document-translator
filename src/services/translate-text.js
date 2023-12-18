@@ -43,7 +43,7 @@ async function handleRetries({ userPrompt, systemPrompt, chunk }) {
       ]);
 
       const translatedChunk = cleanText(dirtyTranslatedChunk);
-      console.log("TRADUCCION: ", translatedChunk);
+      // console.log("TRADUCCION: ", translatedChunk);
 
       if (!hasTranslationErrors(translatedChunk)) {
         return translatedChunk || chunk;

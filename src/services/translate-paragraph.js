@@ -89,7 +89,10 @@ async function translateParagraph({ paragraph, targetLanguage }) {
 
       break;
     } catch (jsonError) {
-      console.log("Error al parsear JSON. Reintentando...");
+      console.log(
+        "[translate paragraph] Error al parsear JSON. Reintentando..."
+      );
+      console.log("jsonError", jsonError);
     }
 
     // En caso de error de límite de tasa
@@ -101,7 +104,7 @@ async function translateParagraph({ paragraph, targetLanguage }) {
     }
   }
 
-  console.log("result", parsedResult);
+  // console.log("result", parsedResult);
 
   return parsedResult;
 }

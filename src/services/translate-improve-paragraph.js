@@ -85,7 +85,8 @@ async function translateImproveParagraph({
   sourceLanguage,
   targetLanguage,
   progressCallback,
-  paragraphCount,
+  totalNodes,
+  progress,
 }) {
   const userPrompt = generateUserPrompt({
     paragraph,
@@ -100,10 +101,7 @@ async function translateImproveParagraph({
 
   // if paragraph lenght is 0, return same paragraph
   if (paragraph.paragraph.length === 0) {
-    // log llamativo
-    console.log("##############");
     console.log("PARAGRAPH LENGTH IS 0");
-    console.log("##############");
     return paragraph;
   }
 
@@ -118,16 +116,19 @@ async function translateImproveParagraph({
       parsedResult = JSON.parse(cleanResult);
 
       // termina la traduccion del parrafo. se suma un progreso. para esto se usa una funcion callback que viene desde monorepo
-      await progressCallback({ result, paragraphCount });
+      await progressCallback({ result, totalNodes, progress });
 
-      // log
-      // console.log("########");
-      // console.log("result", result);
-      // console.log("paragraphCount", paragraphCount);
+      console.log("##################");
+      console.log("progress: ", progress);
+      console.log("totalNodes: ", totalNodes);
+      console.log("##################");
 
       break;
     } catch (jsonError) {
-      console.log("Error al parsear JSON. Reintentando...");
+      console.log(
+        "[translate improve paragraph] Error al parsear JSON. Reintentando..."
+      );
+      console.log("jsonError", jsonError);
     }
 
     // En caso de error de límite de tasa
@@ -155,10 +156,10 @@ async function handleRetries({ userPrompt, systemPrompt }) {
 
       return translatedParagraph;
     } catch (error) {
-      console.error("HANDLE RETRIES ERROR: ", error);
-      console.log("userPrompt", userPrompt);
-      console.log("systemPrompt", systemPrompt);
-      console.error("FIN HANDLE RETRIES ERROR: ", error);
+      // console.error("HANDLE RETRIES ERROR: ", error);
+      // console.log("userPrompt", userPrompt);
+      // console.log("systemPrompt", systemPrompt);
+      // console.error("FIN HANDLE RETRIES ERROR: ", error);
       if (retryCount === RETRY_LIMIT - 1) {
         // Si es el último intento
         return { error }; // Devuelve el error
